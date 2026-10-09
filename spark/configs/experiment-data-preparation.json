@@ -1,0 +1,11 @@
+{
+  "version": "v1",
+  "random_seed": 20261005,
+  "learners": 30,
+  "resources_per_theme": 10,
+  "train_interactions_per_user": 8,
+  "test_interactions_per_user": 3,
+  "train_cutoff_utc": "2026-10-02 23:59:59.000",
+  "test_cutoff_utc": "2026-10-03 23:59:59.000",
+  "data_origin": "synthetic_state_machine_v1"
+}

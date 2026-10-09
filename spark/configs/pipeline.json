@@ -1,0 +1,7 @@
+{
+  "master": "local[2]",
+  "driver_memory": "1g",
+  "shuffle_partitions": 2,
+  "max_rows_per_table": 50000,
+  "jdbc_jar": "spark/lib/mysql-connector-j-8.0.33.jar"
+}

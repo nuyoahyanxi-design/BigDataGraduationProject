@@ -1,0 +1,8 @@
+{
+  "version": "v1",
+  "train_batch": "20261004T151507Z_aa40c29c",
+  "test_batch": "20261004T152333Z_feff03d5",
+  "k": 10,
+  "positive_event_types": ["learning_start", "learning_complete", "favorite_add"],
+  "data_origin": "development_fixture"
+}

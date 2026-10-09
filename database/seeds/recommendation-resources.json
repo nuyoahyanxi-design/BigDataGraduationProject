@@ -1,0 +1,7 @@
+[
+  {"title":"Spark RDD基础教程","category_code":"data-engineering","tags":["spark","rdd","大数据"],"summary":"学习RDD的分区、惰性转换、行动操作与血缘容错。","content":"RDD是分区的不可变分布式数据集合。转换操作通常惰性执行，行动操作触发计算。Spark可通过血缘重算丢失的分区；缓存是可选的，不表示RDD始终驻留内存。练习：在已有SparkContext中创建整数RDD，用map转换后调用count。"},
+  {"title":"PySpark数据处理实践","category_code":"data-engineering","tags":["python","pyspark","spark"],"summary":"使用PySpark DataFrame完成筛选、聚合及Parquet读写。","content":"在已有SparkSession中创建具有明确schema的DataFrame，使用filter筛选、groupBy聚合，并将结果写为Parquet。检查字段类型和空值。PySpark提供DataFrame接口，不提供与Scala/Java相同的强类型Dataset接口。练习：按用户统计学习事件数。"},
+  {"title":"Hadoop HDFS入门","category_code":"data-engineering","tags":["hadoop","hdfs","大数据"],"summary":"理解HDFS元数据、数据块与容错机制。","content":"HDFS是面向大规模文件的分布式文件系统。NameNode管理文件系统元数据，DataNode存储数据块。副本策略、块大小等配置应结合版本和部署环境确认，不把示例值当作所有版本默认值。练习：说明存储系统与YARN资源管理的区别。"},
+  {"title":"MySQL数据库基础","category_code":"databases","tags":["mysql","数据库"],"summary":"学习关系表、主外键、索引与事务基础。","content":"关系表由字段与记录组成，主键标识记录，外键约束关系。索引可帮助特定查询但有维护成本。事务通过提交和回滚管理一组变更。练习：解释为什么学习状态和对应行为事件应在同一事务中保存。"},
+  {"title":"Python机器学习基础","category_code":"machine-learning","tags":["python","ml"],"summary":"理解训练测试划分、特征与评价指标。","content":"机器学习流程包括数据清洗、特征构造、训练与评价。训练数据和测试数据应分离，涉及时间行为时避免未来信息泄漏。评价应说明指标分母和适用范围，不把训练效果当作泛化性能。练习：说明时间划分与随机划分的差异。"}
+]

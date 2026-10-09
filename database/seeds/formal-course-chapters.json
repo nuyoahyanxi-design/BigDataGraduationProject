@@ -1,0 +1,270 @@
+[
+  {
+    "resource_id": 1071,
+    "title": "MySQL数据库基础",
+    "chapters": [
+      {
+        "title": "MySQL与关系型数据库基础",
+        "position": 1,
+        "learning_objectives": [
+          "识别数据库、数据表、行与列的关系",
+          "区分SQL查询与数据修改",
+          "理解MySQL在在线学习平台中的作用"
+        ],
+        "knowledge_tags": [
+          "MySQL",
+          "关系型数据库",
+          "SQL"
+        ],
+        "content": "# MySQL与关系型数据库基础\n\n## 详细讲解\n关系型数据库用表组织结构化信息：一行表示一个对象或事实，一列表示它的某种属性。MySQL可用SQL查询数据，也可通过约束和事务维护一致性。课程资源、学习者与行为属于不同实体，拆分表后可通过标识关联，避免把所有信息塞进单个字段。\n\n## 案例理解\n示例用两行临时查询结果表示两位学习者，SELECT选择列，UNION ALL合并记录。它没有创建持久化表，也没有读取平台用户隐私。在线平台的MySQL负责及时记录状态；Spark读取快照进行离线分析，两者承担不同工作，不能因为用了Spark就省略数据库一致性设计。\n\n## 学习提示\n以下SQL用于MySQL8练习环境。本章只有查询，后续涉及建表或事务时须使用独立练习数据库或会话，不要对平台users/resources执行教学SQL。数据表的行顺序没有隐式保证，需要有序结果时使用ORDER BY。",
+        "example_code": "SELECT 1 AS learner_id, '小林' AS learner_name\nUNION ALL\nSELECT 2 AS learner_id, '小周' AS learner_name;\nSELECT VERSION() AS mysql_version;",
+        "exercises": [
+          "说明学习者姓名应存为列还是独立的一张表，并解释原因。",
+          "新增第三行查询样本，观察UNION ALL是否保留重复记录。"
+        ],
+        "video_name": "MySQL与关系型数据库基础教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "数据表、字段与约束设计",
+        "position": 2,
+        "learning_objectives": [
+          "按含义选择数值和文本类型",
+          "理解主键、NOT NULL与唯一性",
+          "在独立会话创建练习表"
+        ],
+        "knowledge_tags": [
+          "MySQL",
+          "Schema",
+          "主键",
+          "约束"
+        ],
+        "content": "# 数据表、字段与约束设计\n\n## 详细讲解\n字段设计应先明确业务含义，再选择类型。编号可用整数，短标题可用有长度上限的文本，时间需要约定时区与精度。主键唯一标识一行；NOT NULL限制缺失值，唯一约束限制重复值。结构约束能减少错误，但不能替代全部业务校验。\n\n## 案例理解\n示例创建只在当前MySQL连接内存在的临时资源表，为ID建立主键，要求标题与难度非空，并限制难度取值。utf8mb4用于保存中文。临时表连接结束后消失，不是平台资源管理模块的迁移；本系统已有resources表不会被本章代码改动。\n\n## 学习提示\n请先选择自己的练习数据库，再运行示例。不要用TEXT保存所有字段，也不要以姓名作为稳定主键。MySQL8.0.16及以后会执行CHECK约束；练习环境版本不同时应核对支持情况。未指定默认值的非空字段应在插入时显式提供。",
+        "example_code": "CREATE TEMPORARY TABLE lesson_resources (\n  id BIGINT UNSIGNED PRIMARY KEY,\n  title VARCHAR(100) NOT NULL,\n  difficulty VARCHAR(20) NOT NULL,\n  CHECK (difficulty IN ('beginner', 'intermediate'))\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\nINSERT INTO lesson_resources VALUES (1, 'SQL入门', 'beginner');\nSELECT id, title, difficulty FROM lesson_resources;",
+        "exercises": [
+          "尝试插入相同ID或NULL标题，在练习环境观察约束错误。",
+          "为练习表设计创建时间列，说明是否可空及时间约定。"
+        ],
+        "video_name": "数据表、字段与约束设计教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "SELECT查询、条件筛选与排序",
+        "position": 3,
+        "learning_objectives": [
+          "组合WHERE、ORDER BY与LIMIT",
+          "避免SELECT所有列造成不必要传输",
+          "理解分页需要稳定排序"
+        ],
+        "knowledge_tags": [
+          "MySQL",
+          "SELECT",
+          "WHERE",
+          "排序"
+        ],
+        "content": "# SELECT查询、条件筛选与排序\n\n## 详细讲解\nSELECT指定需要返回的列，WHERE筛选记录，ORDER BY决定输出顺序，LIMIT限制数量。查询条件应与字段类型匹配，空值判断使用IS NULL或IS NOT NULL。应用接收外部搜索条件时应使用参数绑定，不能直接拼接用户输入到SQL。\n\n## 案例理解\n示例通过公共表表达式提供三条独立教学数据，筛选spark主题，按分钟降序并用ID作为第二排序键。这样在数值相同时顺序仍稳定。课程资源列表的分页也需要明确定序；此处只是讲解查询方式，不改平台现有查询接口。\n\n## 学习提示\nLIMIT不等于默认排序，也不保证在没有ORDER BY时每次得到同一批记录。偏移分页在大量数据或频繁更新时有局限；本科演示先保证明确、可解释的排序规则，不必立即引入复杂分页机制。",
+        "example_code": "WITH lesson_resources AS (\n  SELECT 1 AS id, 'spark' AS topic, 20 AS minutes\n  UNION ALL SELECT 2, 'mysql', 15\n  UNION ALL SELECT 3, 'spark', 10\n)\nSELECT id, topic, minutes FROM lesson_resources\nWHERE topic = 'spark'\nORDER BY minutes DESC, id ASC\nLIMIT 2;",
+        "exercises": [
+          "将条件改成minutes >= 15，先预测结果再查询。",
+          "构造分钟相同的两条记录，解释第二排序键的作用。"
+        ],
+        "video_name": "SELECT查询、条件筛选与排序教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "聚合查询与表连接",
+        "position": 4,
+        "learning_objectives": [
+          "用GROUP BY统计学习事件",
+          "理解LEFT JOIN如何保留无行为用户",
+          "区分COUNT(*)与COUNT(列)"
+        ],
+        "knowledge_tags": [
+          "MySQL",
+          "GROUP BY",
+          "JOIN",
+          "聚合"
+        ],
+        "content": "# 聚合查询与表连接\n\n## 详细讲解\n聚合把多行转成统计结果，COUNT、SUM和AVG分别处理数量、合计和均值。JOIN按关联条件组合表；LEFT JOIN保留左表全部行，未匹配的右表字段为NULL。统计口径必须明确，否则“事件数”“完成数”和“用户数”容易混为一谈。\n\n## 案例理解\n示例定义两位学习者，只有第一位有两条事件。LEFT JOIN后使用COUNT(e.event_id)，无事件用户计数为0；若使用COUNT(*)，该用户保留的空关联行也会被计入。这个差异能解释为什么看板要准确规定分子和分母。\n\n## 学习提示\n关联键不唯一时可能产生行数放大，加入多个一对多表时尤其应先明确聚合层级。不要把多个浏览事件误当成多个已完成课程。正式平台现有Spark统计不因本章示例而改变。",
+        "example_code": "WITH learners AS (\n  SELECT 1 AS learner_id UNION ALL SELECT 2\n), events AS (\n  SELECT 101 AS event_id, 1 AS learner_id\n  UNION ALL SELECT 102, 1\n)\nSELECT l.learner_id, COUNT(e.event_id) AS event_count\nFROM learners l LEFT JOIN events e ON e.learner_id = l.learner_id\nGROUP BY l.learner_id ORDER BY l.learner_id;",
+        "exercises": [
+          "将COUNT(e.event_id)替换为COUNT(*)，说明第二位用户计数为何不同。",
+          "添加第二位用户的一条事件，验证聚合结果。"
+        ],
+        "video_name": "聚合查询与表连接教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "事务、回滚与索引基础",
+        "position": 5,
+        "learning_objectives": [
+          "用事务将相关状态变化组合处理",
+          "区分提交与回滚",
+          "认识索引的查询收益与维护成本"
+        ],
+        "knowledge_tags": [
+          "MySQL",
+          "InnoDB",
+          "事务",
+          "索引"
+        ],
+        "content": "# 事务、回滚与索引基础\n\n## 详细讲解\n事务把一组相关操作作为一致的工作单元。对InnoDB数据，START TRANSACTION后执行的修改可以通过COMMIT提交或ROLLBACK撤销。学习完成状态与事件记录需要同一事务，但本章不会改动平台既有事务实现。DDL存在隐式提交等边界，不能认为所有SQL都可随意回滚。\n\n## 案例理解\n示例在临时练习表插入未完成状态，然后在事务内将它改为完成，再回滚，最后仍读到未完成。state索引只是教学演示；是否被优化器使用与数据量、选择性和统计信息有关，不保证小表查询一定走索引。\n\n## 学习提示\n请在同一独立MySQL连接运行示例。索引会占用空间并增加写入维护成本，不应每个字段都建索引。创建临时表与初始插入在事务演示之前完成，最终回滚只演示状态UPDATE，不宣称回滚建表。",
+        "example_code": "CREATE TEMPORARY TABLE lesson_progress (\n  id INT PRIMARY KEY, state VARCHAR(20) NOT NULL,\n  KEY idx_lesson_state (state)\n) ENGINE=InnoDB;\nINSERT INTO lesson_progress VALUES (1, 'not_started');\nSTART TRANSACTION;\nUPDATE lesson_progress SET state = 'completed' WHERE id = 1;\nROLLBACK;\nSELECT id, state FROM lesson_progress;\nEXPLAIN SELECT id FROM lesson_progress WHERE state = 'not_started';",
+        "exercises": [
+          "在练习连接把ROLLBACK改为COMMIT，比较最终状态。",
+          "说明为什么状态修改成功而事件写入失败时应该整体回滚。"
+        ],
+        "video_name": "事务、回滚与索引基础教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      }
+    ]
+  },
+  {
+    "resource_id": 1070,
+    "title": "Hadoop HDFS入门",
+    "chapters": [
+      {
+        "title": "HDFS架构与核心概念",
+        "position": 1,
+        "learning_objectives": [
+          "区分NameNode、DataNode和客户端",
+          "解释分布式文件系统与本机目录的区别",
+          "理解大文件批量读取的典型场景"
+        ],
+        "knowledge_tags": [
+          "Hadoop",
+          "HDFS",
+          "NameNode",
+          "DataNode"
+        ],
+        "content": "# HDFS架构与核心概念\n\n## 详细讲解\nHDFS面向分布式存储，常用于较大数据文件的批量处理。NameNode管理目录、文件及块位置等元数据，DataNode保存数据块，客户端按元数据定位实际数据。文件路径看起来类似Linux目录，但hdfs://路径与本机/mnt/d路径属于不同文件系统。\n\n## 案例理解\n学习行为快照可以作为离线数据文件供Spark读取。把它放入HDFS意味着数据由集群文件系统管理，而不是把Windows文件夹简单改名为HDFS。示例查询配置的默认文件系统并列出根目录，目的是认识客户端连接对象，不会启动新集群。\n\n## 学习提示\n本项目当前采用本机Parquet文件，并不要求安装Hadoop。本章命令需另行准备已有HDFS客户端与可用集群；若fs.defaultFS为file:///，默认目标可能仍是本地文件系统，不能据此宣称已连接HDFS。",
+        "example_code": "# 仅在已配置Hadoop客户端的练习环境运行\nhdfs getconf -confKey fs.defaultFS\nhdfs dfs -ls /",
+        "exercises": [
+          "画出客户端、NameNode和DataNode之间的职责关系。",
+          "解释file:///与hdfs://路径为什么不能混为同一个存储环境。"
+        ],
+        "video_name": "HDFS架构与核心概念教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "HDFS目录与文件操作",
+        "position": 2,
+        "learning_objectives": [
+          "创建自己的练习目录并上传小文件",
+          "使用ls与cat核对输入",
+          "区分本地源路径和HDFS目标路径"
+        ],
+        "knowledge_tags": [
+          "HDFS",
+          "文件系统",
+          "数据上传"
+        ],
+        "content": "# HDFS目录与文件操作\n\n## 详细讲解\nHDFS文件系统Shell提供目录与文件操作。mkdir创建目录，put将本地文件上传到目标文件系统，ls列出内容，cat读取小文件文本。每个命令的路径和执行身份都要明确，不能把不同用户的目录混用。\n\n## 案例理解\n示例先在自己的工作目录创建两行小CSV，再放入自己的HDFS练习目录，最后核对文件内容。它是准备输入数据的教学步骤，不处理平台data目录，也不会被课程页面自动执行。若文件已存在，普通put会拒绝覆盖，先检查再决定如何处理。\n\n## 学习提示\n运行前确认默认文件系统为HDFS，$USER路径也需符合实际授权身份。没有写权限时应申请自己的目录权限，不要修改系统权限或强行覆盖其他文件。cat只用于小样本查看，大文件分析交给计算任务。",
+        "example_code": "# 在独立练习目录运行，不使用平台data目录\nprintf 'user_id,topic\n1,spark\n' > lesson-events.csv\nhdfs dfs -mkdir -p \"/user/$USER/lesson_hdfs\"\nhdfs dfs -put lesson-events.csv \"/user/$USER/lesson_hdfs/\"\nhdfs dfs -ls \"/user/$USER/lesson_hdfs\"\nhdfs dfs -cat \"/user/$USER/lesson_hdfs/lesson-events.csv\"",
+        "exercises": [
+          "说明put命令中哪一个路径属于本地，哪一个属于HDFS。",
+          "重复上传时观察文件已存在提示，说明为什么不应默认强制覆盖。"
+        ],
+        "video_name": "HDFS目录与文件操作教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "数据块与副本机制",
+        "position": 3,
+        "learning_objectives": [
+          "理解文件分块与冗余存储",
+          "区分副本数量与计算分区数",
+          "通过客户端观察文件状态"
+        ],
+        "knowledge_tags": [
+          "HDFS",
+          "Block",
+          "Replication"
+        ],
+        "content": "# 数据块与副本机制\n\n## 详细讲解\nHDFS将文件组织为块，并按配置维护副本，以应对节点或存储故障。块大小和副本数属于文件系统配置，不是所有环境都固定相同。冗余副本提供容错，并不意味着用户会读到多份重复逻辑记录。\n\n## 案例理解\n示例针对上一章的练习文件查询字节数、副本数和块大小，并查看目录空间统计。小文件可能只有一个块，但该块仍可有多个副本。输出由实际集群配置决定，课程不给出伪造的固定结果。\n\n## 学习提示\n副本数不是Spark的分区数，两者有联系但不是一一等同。副本不足、节点不可用或权限问题需要结合集群健康状态分析。不要为完成练习修改线上副本配置，也不要把统计输出当成已经通过容灾验收。",
+        "example_code": "# 需已上传练习文件，%b字节数、%r副本数、%o块大小\nhdfs dfs -stat '%b %r %o' \"/user/$USER/lesson_hdfs/lesson-events.csv\"\nhdfs dfs -du -h \"/user/$USER/lesson_hdfs\"",
+        "exercises": [
+          "记录实际块大小和副本数，标注它们来自哪个环境。",
+          "解释为什么副本数为3不意味着Spark一定只有3个分区。"
+        ],
+        "video_name": "数据块与副本机制教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "HDFS读写流程与权限",
+        "position": 4,
+        "learning_objectives": [
+          "说明元数据查询与数据传输的区别",
+          "检查练习目录的访问权限",
+          "使用自己的身份读取已上传内容"
+        ],
+        "knowledge_tags": [
+          "HDFS",
+          "读写流程",
+          "权限"
+        ],
+        "content": "# HDFS读写流程与权限\n\n## 详细讲解\n客户端读取文件时先获得块位置信息，再与DataNode交换数据；写入时也涉及元数据协调和数据节点传输。理解这个过程有助于排查“目录能列出但数据读不出”等现象，元数据可见并不保证所有数据节点连接都正常。\n\n## 案例理解\n示例查看自己目录的详细信息并把练习文件复制回新的本地文件名，再检查前几行。HDFS权限与本机文件权限不同，身份可能由实际集群的安全机制决定。权限错误应核对授权目录、用户和组，不应通过公开全部数据权限来解决。\n\n## 学习提示\n本章不修改任何权限。对于真实教学或用户数据，遵循最小权限并避免公开敏感内容；获取文件时使用独立输出名，保护已有本地文件。网络异常与权限异常应分别排查，不要把所有读取失败都称为数据丢失。",
+        "example_code": "# 仅读取自己的已授权目录，不修改权限\nhdfs dfs -ls -d \"/user/$USER/lesson_hdfs\"\nhdfs dfs -get \"/user/$USER/lesson_hdfs/lesson-events.csv\" lesson-events-copy.csv\nhead -n 3 lesson-events-copy.csv",
+        "exercises": [
+          "列出读取失败时需要检查的身份、路径和连接条件。",
+          "说明为什么查看目录成功不一定代表每个DataNode都可连接。"
+        ],
+        "video_name": "HDFS读写流程与权限教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "HDFS与Spark数据分析衔接",
+        "position": 5,
+        "learning_objectives": [
+          "在独立练习会话中读取HDFS数据",
+          "用DataFrame完成主题聚合",
+          "区分教学集群案例与平台本机链路"
+        ],
+        "knowledge_tags": [
+          "HDFS",
+          "Spark",
+          "DataFrame",
+          "离线分析"
+        ],
+        "content": "# HDFS与Spark数据分析衔接\n\n## 详细讲解\nSpark可以通过已配置的数据源读取HDFS文件，再用DataFrame或SQL分析。运行环境需能解析目标HDFS地址、访问数据节点，并具有相应权限。HDFS负责存储，Spark负责计算，SQL查询不会把HDFS自动变成MySQL数据库。\n\n## 案例理解\n示例在独立PySpark会话读取上一章的CSV并按topic统计行数。路径中的student为示例授权用户，需要替换；hdfs:///使用客户端已有的默认HDFS配置。本机平台现有MySQL→Parquet→画像→推荐链路保持不变，这段教学示例不会加入生产Spark任务。\n\n## 学习提示\n没有配置HDFS时不要直接运行此路径，也不要为了演示改动平台Spark参数。正式数据最好显式规定Schema，CSV头部、空值与类型推断都可能影响结果。少量CSV用于教学；真实分析仍需数据质量验证和批次追溯。",
+        "example_code": "# 需已有spark会话、HDFS配置及自己的授权路径\npath = \"hdfs:///user/student/lesson_hdfs/lesson-events.csv\"\ndf = spark.read.option(\"header\", True).schema(\"user_id long, topic string\").csv(path)\ndf.groupBy(\"topic\").count().show()\nprint(df.count())",
+        "exercises": [
+          "指出从示例迁移到真实数据时要记录哪些输入与Schema信息。",
+          "说明当前平台为什么可以采用本机Parquet完成本科MVP，而不必声称已部署HDFS集群。"
+        ],
+        "video_name": "HDFS与Spark数据分析衔接教学视频",
+        "video_url": "/demo/video.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      }
+    ]
+  }
+]

@@ -1,0 +1,236 @@
+[
+  {
+    "title": "Spark RDD基础教程",
+    "chapters": [
+      {
+        "title": "什么是RDD？",
+        "position": 1,
+        "content": "# 什么是RDD？\n\nRDD是分区的不可变分布式数据集合。转换操作通常惰性执行，行动操作才触发计算。血缘记录分区如何从父数据生成，可用于重算丢失分区。缓存是可选的，不代表RDD始终驻留内存。\n\n## 学习练习\n辨别转换和行动；思考为什么不可变数据有助于重算。",
+        "knowledge_tags": [
+          "Spark",
+          "RDD",
+          "Lineage"
+        ],
+        "video_name": "什么是RDD？教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "RDD创建方式",
+        "position": 2,
+        "content": "# RDD创建方式\n\n已有SparkSession时可通过spark.sparkContext取得上下文。parallelize适合小规模演示集合；textFile适合读取文本数据。生产数据不要先全部加载到Driver。分区数量应根据环境测量，不把示例参数当作固定默认值。\n\n## 学习练习\n在现有环境使用 sc = spark.sparkContext，再执行 sc.parallelize([1, 2, 3]).count()。",
+        "knowledge_tags": [
+          "Spark",
+          "RDD",
+          "PySpark"
+        ],
+        "video_name": "RDD创建方式教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "Transformation转换算子",
+        "position": 3,
+        "content": "# Transformation转换算子\n\nmap逐元素转换，filter保留符合条件的元素，flatMap把一个输入展开为多个输出。这些转换返回新RDD，不直接修改原集合。窄依赖通常无需重新跨分区分配数据，宽依赖可能产生Shuffle。\n\n## 学习练习\n将整数乘2，再过滤大于3的结果，行动触发前只形成血缘。",
+        "knowledge_tags": [
+          "RDD",
+          "Transformation"
+        ],
+        "video_name": "Transformation转换算子教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "Action操作",
+        "position": 4,
+        "content": "# Action操作\n\ncount统计条数，take获取有限样本，reduce聚合元素。collect会把全部结果送回Driver，大数据场景需谨慎。行动可能触发已有转换链执行，缓存可减少后续重复计算但消耗存储资源。\n\n## 学习练习\n对小集合比较count和take(2)，避免对大数据collect。",
+        "knowledge_tags": [
+          "RDD",
+          "Action"
+        ],
+        "video_name": "Action操作教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "WordCount案例",
+        "position": 5,
+        "content": "# WordCount案例\n\n把文本拆成词，对每个词映射计数1，再按键求和。reduceByKey可以执行局部合并，但是否发生Shuffle仍取决于分区条件。大小写和标点规则应在计数前统一。\n\n## 学习练习\n```python\nsc = spark.sparkContext\nlines = sc.parallelize([\"spark python\", \"spark rdd\"])\ncounts = lines.flatMap(lambda s: s.split()).map(lambda w: (w, 1)).reduceByKey(lambda a, b: a + b)\nprint(counts.take(10))\n```",
+        "knowledge_tags": [
+          "RDD",
+          "WordCount",
+          "Shuffle"
+        ],
+        "video_name": "WordCount案例教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      }
+    ]
+  },
+  {
+    "title": "PySpark数据处理实践",
+    "chapters": [
+      {
+        "title": "DataFrame与Schema",
+        "position": 1,
+        "content": "# DataFrame与Schema\n\nDataFrame是具有命名列与Schema的分布式数据集，Spark SQL可优化其执行计划。PySpark不提供与Scala或Java相同的强类型Dataset API。显式Schema有助于避免推断歧义。\n\n## 学习练习\n创建包含user_id和topic的两行数据，查看printSchema。",
+        "knowledge_tags": [
+          "PySpark",
+          "DataFrame",
+          "Schema"
+        ],
+        "video_name": "DataFrame与Schema教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "筛选与列转换",
+        "position": 2,
+        "content": "# 筛选与列转换\n\nselect选列，filter按条件保留行，withColumn添加或转换列。列表达式交给Spark执行，不在Driver逐行循环。遇到空值时应明确保留或过滤策略。\n\n## 学习练习\n选取user_id列，并筛选topic为spark的记录。",
+        "knowledge_tags": [
+          "PySpark",
+          "Filter"
+        ],
+        "video_name": "筛选与列转换教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "聚合与Spark SQL",
+        "position": 3,
+        "content": "# 聚合与Spark SQL\n\ngroupBy后使用count或sum聚合。也可注册临时视图再执行SQL。聚合粒度必须明确，行为次数不等于用户数。检查explain执行计划可帮助理解开销。\n\n## 学习练习\n按主题统计学习事件次数，并用SQL核对相同结果。",
+        "knowledge_tags": [
+          "PySpark",
+          "SparkSQL",
+          "Aggregation"
+        ],
+        "video_name": "聚合与Spark SQL教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "Parquet读写",
+        "position": 4,
+        "content": "# Parquet读写\n\nParquet是支持列式存储的文件格式。适合分析扫描与Schema保留。批次目录可用于追溯来源，覆盖写入只用于独立实验目录，不能覆盖正式历史数据。\n\n## 学习练习\n在临时目录写Parquet并读回，对比Schema和行数。",
+        "knowledge_tags": [
+          "PySpark",
+          "Parquet"
+        ],
+        "video_name": "Parquet读写教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "学习行为清洗实践",
+        "position": 5,
+        "content": "# 学习行为清洗实践\n\n清洗时验证用户与资源关联，检查事件类型，按event_uuid去重，并明确UTC和自然日口径。保留质量报告，不能把被过滤记录默默丢弃。课程级事件与章节细粒度事件应分别说明分析范围。\n\n## 学习练习\n列出输入、无效、重复和输出条数，确认数量关系成立。",
+        "knowledge_tags": [
+          "PySpark",
+          "DataQuality"
+        ],
+        "video_name": "学习行为清洗实践教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      }
+    ]
+  },
+  {
+    "title": "Python机器学习基础",
+    "chapters": [
+      {
+        "title": "机器学习任务与数据",
+        "position": 1,
+        "content": "# 机器学习任务与数据\n\n监督学习使用带标签数据预测目标；分类和回归的目标形式不同。首先定义业务问题与数据粒度，明确可用特征，不能把未来结果当作训练输入。\n\n## 学习练习\n把学习资源推荐与分类预测区分，说明各自目标。",
+        "knowledge_tags": [
+          "Python",
+          "ML"
+        ],
+        "video_name": "机器学习任务与数据教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "训练测试划分",
+        "position": 2,
+        "content": "# 训练测试划分\n\n训练用于拟合，验证用于调参，测试用于最终评价。行为数据通常应按时间划分，训练时间早于测试时间，避免未来泄漏。用户和资源快照也需匹配截止时间。\n\n## 学习练习\n画出时间截止线，区分训练行为与测试正样本。",
+        "knowledge_tags": [
+          "Python",
+          "ML",
+          "DataLeakage"
+        ],
+        "video_name": "训练测试划分教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "特征与预处理",
+        "position": 3,
+        "content": "# 特征与预处理\n\n数值特征可按训练集统计量缩放，类别可编码。标签向量可描述主题偏好。预处理参数只在训练数据拟合，再用于测试；缺失值和重复记录需统一处理。\n\n## 学习练习\n为python和spark构造简单二元标签向量。",
+        "knowledge_tags": [
+          "Python",
+          "ML",
+          "Feature"
+        ],
+        "video_name": "特征与预处理教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "模型评价指标",
+        "position": 4,
+        "content": "# 模型评价指标\n\n分类准确率可能受类别不平衡误导。推荐中Recall@K统计命中的正样本比例，NDCG@K考虑命中位置。测试正样本为空时不能伪造可计算指标，也不能只报告好看的样本。\n\n## 学习练习\n说明Recall与NDCG关注的差异，写明分母与候选口径。",
+        "knowledge_tags": [
+          "Python",
+          "ML",
+          "Evaluation"
+        ],
+        "video_name": "模型评价指标教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      },
+      {
+        "title": "完整实验与可复现",
+        "position": 5,
+        "content": "# 完整实验与可复现\n\n保存数据批次、训练截止、参数、算法版本和运行耗时。使用固定排序或随机种子提升可复现性。实验结果只能证明特定数据上的表现，开发模拟样本不能代表真实学生效果。\n\n## 学习练习\n整理一次实验配置、指标、限制与可重跑命令。",
+        "knowledge_tags": [
+          "Python",
+          "ML",
+          "Reproducibility"
+        ],
+        "video_name": "完整实验与可复现教学视频",
+        "video_url": "/videos/demo.mp4",
+        "video_cover": null,
+        "video_duration_seconds": null,
+        "video_position": 1
+      }
+    ]
+  }
+]
