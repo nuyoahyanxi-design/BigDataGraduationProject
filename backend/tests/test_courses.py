@@ -1,5 +1,5 @@
 import secrets
-from uuid import uuid4
+from uuid import uuid4, uuid5, UUID, NAMESPACE_URL
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import json
@@ -81,6 +81,26 @@ def test_uuid_replay_and_conflict(ctx):
     assert action(ctx,rid,cids[0],uuid=uuid).json()==original
     assert action(ctx,rid,cids[1],uuid=uuid).status_code==409
     assert action(ctx,rid,cids[0],uuid=uuid,actor='other').status_code==409
+
+
+def test_bridge_uuid_identity_and_client_v4_boundary(ctx):
+    rid,cids=setup(ctx,1)
+    start_uuid,complete_uuid=str(uuid4()),str(uuid4())
+    first=action(ctx,rid,cids[0],uuid=start_uuid)
+    assert first.status_code==200
+    last=action(ctx,rid,cids[0],'chapter_complete',uuid=complete_uuid)
+    assert last.status_code==200
+    assert action(ctx,rid,cids[0],uuid=start_uuid).json()==first.json()
+    assert action(ctx,rid,cids[0],'chapter_complete',uuid=complete_uuid).json()==last.json()
+    with app.state.session_factory() as db:
+        rows=db.scalars(select(LearningEvent).where(LearningEvent.resource_id==rid)).all()
+        actual={row.event_type:row.event_uuid for row in rows}
+    assert len(rows)==2
+    assert actual=={kind:str(uuid5(NAMESPACE_URL,f'course:{source}:{kind}'))
+                   for kind,source in [('learning_start',start_uuid),('learning_complete',complete_uuid)]}
+    assert all(UUID(value).version==5 for value in actual.values())
+    assert len(set(actual.values()))==2
+    assert action(ctx,rid,cids[0],uuid=str(uuid5(NAMESPACE_URL,'client'))).status_code==422
 
 def test_completion_noop_and_legacy_bypass_rejected(ctx):
     rid,cids=setup(ctx)

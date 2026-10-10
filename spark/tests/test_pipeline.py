@@ -3,7 +3,7 @@ import json
 import secrets
 from datetime import datetime,timezone
 from pathlib import Path
-from uuid import uuid4
+from uuid import uuid4, uuid5, NAMESPACE_URL
 
 import pymysql
 import pytest
@@ -118,6 +118,49 @@ def test_empty_dataframe_round_trip(session,tmp_path):
         assert session.read.parquet(str(tmp_path/'empty')).count()==0
     finally:
         clean.unpersist();reject.unpersist()
+
+
+def test_course_bridge_uuid_compatibility_and_validation(session,tmp_path):
+    def bridge(identity,kind='learning_start',**values):
+        return make_event(identity,kind,event_uuid=str(uuid5(NAMESPACE_URL,f'bridge:{identity}')),**values)
+    records=[make_event(1),make_event(2,'learning_start'),
+        make_event(3,'learning_complete',state_before='in_progress',state_after='completed'),
+        make_event(4,'favorite_add',state_before='not_favorited',state_after='favorited'),
+        make_event(5,'favorite_remove',state_before='favorited',state_after='not_favorited'),
+        bridge(6),bridge(7,'learning_complete',state_before='in_progress',state_after='completed'),
+        bridge(8,'resource_view'),bridge(9,'favorite_add',state_before='not_favorited',state_after='favorited'),
+        bridge(10,'favorite_remove',state_before='favorited',state_after='not_favorited'),
+        bridge(11,event_source='client'),make_event(12,session_id=str(uuid5(NAMESPACE_URL,'session'))),
+        bridge(13,state_before='completed',state_after='in_progress'),
+        bridge(14,received_at='2026-10-04 00:00:01'),bridge(15,request_fingerprint='0'*64),
+        bridge(16,user_id=999),bridge(17,is_effective=0,state_before='in_progress'),
+        make_event(18,event_uuid=None),
+        bridge(19,event_source=None)]
+    # Correct the no-op state; malformed versions/variants remain rejected.
+    records[16]['state_after']='in_progress'
+    records[14]['request_fingerprint']='0'*64
+    for identity,value in [(20,'00000000-0000-3000-8000-000000000001'),
+                           (21,'00000000-0000-5000-7000-000000000001')]:
+        records.append(make_event(identity,'learning_start',event_uuid=value))
+    duplicate=bridge(22);records.extend([duplicate,{**duplicate,'id':23}])
+    conflict=bridge(24);records.extend([conflict,{**conflict,'id':25,'resource_version':1}])
+    users,resources=references(session)
+    cleaned,rejected,report=clean_events(dataframe(session,records),users,resources,'2026-10-05 00:00:00')
+    try:
+        assert {row.id for row in cleaned.select('id').collect()}=={1,2,3,4,5,6,7,22}
+        reasons={row.id:row.quality_reasons for row in rejected.select('id','quality_reasons').collect()}
+        for identity in [8,9,10,11,18,19,20,21]:assert 'invalid_event_uuid' in reasons[identity]
+        assert 'invalid_session_uuid' in reasons[12]
+        for identity,reason in [(13,'invalid_state_semantics'),(14,'time_order'),
+                                (15,'invalid_request_fingerprint'),(16,'missing_user_reference'),
+                                (17,'no_state_change'),(23,'duplicate_event_uuid'),
+                                (24,'duplicate_uuid_conflict'),(25,'duplicate_uuid_conflict')]:
+            assert reason in reasons[identity]
+        assert report['input_count']==25 and report['output_count']==8 and report['filtered_count']==17
+        cleaned.write.parquet(str(tmp_path/'compatible-dwd'))
+        assert session.read.parquet(str(tmp_path/'compatible-dwd')).count()==8
+    finally:
+        cleaned.unpersist();rejected.unpersist()
 
 
 def test_mysql_snapshot_isolation(session):

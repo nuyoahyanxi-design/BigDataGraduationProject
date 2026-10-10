@@ -1,5 +1,7 @@
 # Spark数据处理第一阶段设计 V1.0
 
+> 2026-10-10稳定化补充：下方保留首版设计。当前event_uuid支持UUIDv4，另仅兼容event_source=server且event_type为learning_start/learning_complete的UUIDv5；session_id仍仅UUIDv4。状态、指纹、时间、关联、去重与冲突校验保持。历史批次不覆盖，正式更新需另行授权新批次发布。
+
 日期：2026-10-04。目标：MySQL五表→一致性ODS快照→Spark清洗DWD事件→质量报告；不实施画像、推荐、AI或前端。
 
 ## 1. 数据流程与一致性

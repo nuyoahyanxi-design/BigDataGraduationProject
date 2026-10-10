@@ -2,6 +2,7 @@ from pyspark.sql import functions as F, Window
 
 EVENT_TYPES=['resource_view','learning_start','learning_complete','favorite_add','favorite_remove']
 UUID_PATTERN=r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+BRIDGE_UUID_PATTERN=r'^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
 
 
 def clean_events(events,users,resources,cutoff):
@@ -24,11 +25,16 @@ def clean_events(events,users,resources,cutoff):
        OR (event_type='favorite_add' AND ((is_effective=1 AND state_before='not_favorited' AND state_after='favorited') OR (is_effective=0 AND state_before='favorited' AND state_after='favorited')))
        OR (event_type='favorite_remove' AND ((is_effective=1 AND state_before='favorited' AND state_after='not_favorited') OR (is_effective=0 AND state_before='not_favorited' AND state_after='not_favorited')))
       ))""")
+    # Client/session UUIDs remain v4; deterministic server course bridges use v5.
+    valid_event_uuid=(F.col('event_uuid').rlike(UUID_PATTERN) |
+        (F.col('event_uuid').rlike(BRIDGE_UUID_PATTERN) &
+         (F.col('event_source')=='server') &
+         F.col('event_type').isin('learning_start','learning_complete')))
     checks=[
       ('empty_or_invalid_user',F.col('user_id').isNull() | (F.col('user_id')<=0)),
       ('empty_or_invalid_resource',F.col('resource_id').isNull() | (F.col('resource_id')<=0)),
       ('invalid_event_type',F.col('event_type').isNull() | ~F.col('event_type').isin(EVENT_TYPES)),
-      ('invalid_event_uuid',F.col('event_uuid').isNull() | ~F.col('event_uuid').rlike(UUID_PATTERN)),
+      ('invalid_event_uuid',~F.coalesce(valid_event_uuid,F.lit(False))),
       ('invalid_event_id',F.col('id').isNull() | (F.col('id')<=0)),
       ('invalid_authoritative_time',F.col('occurred_at').isNull() | F.col('received_at').isNull()),
       ('invalid_client_time',F.col('_client_supplied') & F.col('client_occurred_at').isNull()),

@@ -1,5 +1,7 @@
 # 课程章节与视频学习增量设计
 
+> 2026-10-10稳定化补充：客户端章节请求仍使用UUIDv4；服务端课程级开始/完成桥接沿用确定性UUIDv5。Spark清洗仅兼容server来源的这两类UUIDv5事件，session_id仍严格UUIDv4。实现与验收见learning-behavior-stability-design.md及对应阶段报告。
+
 本阶段新增课程学习闭环，不修改推荐算法、Spark任务、AI模块或原业务表字段。
 
 新增course_chapters：资源外键、标题、position、Markdown文本、知识标签；每章最多一个本地视频，video_name/url/cover/duration/position。新增chapter_progress：用户与章节联合主键、首次学习、完成时间。新增chapter_events：UUID唯一、用户/资源/章节、chapter_view/video_play/chapter_complete、时间、播放位置、有效标记、语义指纹和结果回执JSON。
