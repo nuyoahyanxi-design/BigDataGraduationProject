@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "argv": [
+    "backend/tools/accept_course_videos.py",
+    "--root",
+    "D:\\BigDataGraduationProject\\frontend\\public\\videos",
+    "--catalog",
+    "D:\\BigDataGraduationProject\\outputs\\course-video-footer-fix\\current-catalog.json",
+    "--ffmpeg",
+    "D:\\BigDataGraduationProject\\work\\free-video-runtime\\imageio_ffmpeg\\binaries\\ffmpeg-win-x86_64-v7.1.exe",
+    "--output",
+    "D:\\BigDataGraduationProject\\outputs\\course-teaching-rhythm-final-replacement\\acceptance"
+  ],
+  "dependency_runtime": "work/free-video-runtime",
+  "database_connected": false,
+  "at_utc": "2026-10-10T15:27:24.337579+00:00"
+}

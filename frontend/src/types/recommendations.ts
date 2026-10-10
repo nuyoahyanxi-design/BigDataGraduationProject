@@ -19,3 +19,9 @@ export const algorithmNames = { content_v1: '内容推荐', popular_v1: '热门�
 export function formatScore(value: string) {
   return value.includes('.') ? value.replace(/0+$/, '').replace(/\.$/, '') : value
 }
+export function formatRecommendationScore(value: string, algorithm: RecommendationAlgorithm) {
+  if (algorithm === 'popular_v1') return '热度得分：' + formatScore(value)
+  const score = Number(value)
+  if (!value.trim() || !Number.isFinite(score) || score < 0 || score > 1) return '原始推荐得分：' + formatScore(value)
+  return '综合推荐得分：' + new Intl.NumberFormat('zh-CN', { style: 'percent', maximumFractionDigits: 1 }).format(score)
+}

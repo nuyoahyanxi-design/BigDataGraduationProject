@@ -48,10 +48,10 @@ onMounted(load)
       <div class="dashboard-panels">
         <ElCard shadow="never"><h2>用户行为趋势</h2><p class="chart-source">Spark daily_metrics · 截止自然日前30天 · {{ data.metrics.behavior.timezone }}</p>
           <EChart v-if="data.metrics.behavior.window_events > 0" :option="charts.trend" label="用户行为趋势图" /><ElEmpty v-else description="该统计窗口暂无有效行为" /></ElCard>
-        <ElCard shadow="never"><h2>资源分类分布</h2><p class="chart-source">ODS.resources · 仅快照已发布资源</p>
+        <ElCard shadow="never"><h2>资源分类分布</h2><p class="chart-source">实时MySQL · 当前已发布资源（排除联调资源）</p>
           <EChart v-if="data.metrics.resource_categories.length" :option="charts.distribution" label="资源分类分布图" /><ElEmpty v-else description="暂无已发布资源" /></ElCard>
         <ElCard shadow="never"><h2>学习完成情况</h2><p class="chart-source">ODS.learning_progress · 活跃学习者已开始的进度记录</p>
-          <p>已开始 {{ data.metrics.learning.started_pairs }} 项 · 完成率 {{ percent(data.metrics.learning.completion_rate) }}</p>
+          <p>已开始学习资源 {{ data.metrics.learning.started_pairs }} 项 · 课程完成率 {{ percent(data.metrics.learning.completion_rate) }}</p>
           <EChart v-if="data.metrics.learning.started_pairs > 0" :option="charts.completion" label="学习完成情况图" /><ElEmpty v-else description="暂无已开始的学习记录" /></ElCard>
         <ElCard shadow="never"><h2>推荐结果统计</h2><p class="chart-source">recommendation_results · 配套离线批次发布行，非在线展示量或实验Coverage</p>
           <EChart v-if="response?.recommendations && response.recommendations.rows > 0" :option="charts.recommendation" label="推荐结果统计图" /><ElEmpty v-else description="配套批次暂无推荐结果" /></ElCard>
@@ -60,7 +60,7 @@ onMounted(load)
         <dt>画像批次</dt><dd>{{ response?.profiles?.batch_id || '未生成' }}</dd>
         <dt>推荐批次</dt><dd>{{ response?.recommendations?.batch_id || '未生成' }}</dd><dt>推荐生成</dt><dd>{{ time(response?.recommendations?.generated_at) }}</dd></dl>
         <p v-for="row in response?.recommendations?.algorithms ?? []" :key="row.algorithm">{{ row.algorithm }}：{{ row.rows }} 条，{{ row.users }} 位用户，{{ row.resources }} 个不同资源。</p>
-        <p>完成率只描述已记录的学习流程，不代表学习能力；开发验收样本不能证明真实使用效果。</p>
+        <p>课程完成率只描述已记录的资源学习流程，不代表学习能力；开发验收样本不能证明真实使用效果。</p>
       </section>
     </template>
   </section>

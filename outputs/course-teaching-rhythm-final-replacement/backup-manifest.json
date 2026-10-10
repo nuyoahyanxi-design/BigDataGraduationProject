@@ -1,0 +1,177 @@
+[
+  {
+    "chapter_id": 1,
+    "path": "frontend\\public\\videos\\course_1068\\chapter_001.mp4",
+    "backup": "originals\\course_1068\\chapter_001.original.mp4",
+    "old_sha256": "f67748719280435e6eb73a684d6785e29c34e1fc81233933f9c8d6df5f58777e",
+    "size_bytes": 5504942
+  },
+  {
+    "chapter_id": 2,
+    "path": "frontend\\public\\videos\\course_1068\\chapter_002.mp4",
+    "backup": "originals\\course_1068\\chapter_002.original.mp4",
+    "old_sha256": "5bf53557833717281b70cb26b9317196e29903e468ca1a49e3a99b13aede7edb",
+    "size_bytes": 6161578
+  },
+  {
+    "chapter_id": 3,
+    "path": "frontend\\public\\videos\\course_1068\\chapter_003.mp4",
+    "backup": "originals\\course_1068\\chapter_003.original.mp4",
+    "old_sha256": "5809dbde4d72242eaa5237a2350f6e29fa5b77f5f9749c3d1bb6582311b41a68",
+    "size_bytes": 5588328
+  },
+  {
+    "chapter_id": 4,
+    "path": "frontend\\public\\videos\\course_1068\\chapter_004.mp4",
+    "backup": "originals\\course_1068\\chapter_004.original.mp4",
+    "old_sha256": "860f4aa0596274f803ccf714a24fc016b6224f17fdb270f73cefcc2bee8b588e",
+    "size_bytes": 5464401
+  },
+  {
+    "chapter_id": 5,
+    "path": "frontend\\public\\videos\\course_1068\\chapter_005.mp4",
+    "backup": "originals\\course_1068\\chapter_005.original.mp4",
+    "old_sha256": "a7ebdeeb88c65e8060355767d1857b0f1fd2f0421c23ec38064960a9cda42b3a",
+    "size_bytes": 5631811
+  },
+  {
+    "chapter_id": 6,
+    "path": "frontend\\public\\videos\\course_1069\\chapter_006.mp4",
+    "backup": "originals\\course_1069\\chapter_006.original.mp4",
+    "old_sha256": "35673cf02fc80b436555075644c2cab7cc59230e12d366178ac3deae0d4eb788",
+    "size_bytes": 4049299
+  },
+  {
+    "chapter_id": 7,
+    "path": "frontend\\public\\videos\\course_1069\\chapter_007.mp4",
+    "backup": "originals\\course_1069\\chapter_007.original.mp4",
+    "old_sha256": "4f8d2f9089601b149f55bcb0a870ee07cebba2c19571d043eea29ab3d59d524e",
+    "size_bytes": 5876694
+  },
+  {
+    "chapter_id": 8,
+    "path": "frontend\\public\\videos\\course_1069\\chapter_008.mp4",
+    "backup": "originals\\course_1069\\chapter_008.original.mp4",
+    "old_sha256": "a8fd0867b9bc24702f4dc8d89486146cbace3151a602d8a058f6fe2e1f3ae826",
+    "size_bytes": 6000809
+  },
+  {
+    "chapter_id": 9,
+    "path": "frontend\\public\\videos\\course_1069\\chapter_009.mp4",
+    "backup": "originals\\course_1069\\chapter_009.original.mp4",
+    "old_sha256": "bc4dbe2fe0ca3fa5c43d143403a32519a62e0f9899c6ae3d72c132e2e6075707",
+    "size_bytes": 5868426
+  },
+  {
+    "chapter_id": 10,
+    "path": "frontend\\public\\videos\\course_1069\\chapter_010.mp4",
+    "backup": "originals\\course_1069\\chapter_010.original.mp4",
+    "old_sha256": "f079bf0fc352684f1efb9fd8f7aee9d5cf2a3f986ef743e662b67aacb57b3bf8",
+    "size_bytes": 6479346
+  },
+  {
+    "chapter_id": 59,
+    "path": "frontend\\public\\videos\\course_1070\\chapter_059.mp4",
+    "backup": "originals\\course_1070\\chapter_059.original.mp4",
+    "old_sha256": "c74e1b4710e19eca3a6856be037991bb3c913c0583a9ce196c908e4e410c42d0",
+    "size_bytes": 5782900
+  },
+  {
+    "chapter_id": 60,
+    "path": "frontend\\public\\videos\\course_1070\\chapter_060.mp4",
+    "backup": "originals\\course_1070\\chapter_060.original.mp4",
+    "old_sha256": "fe85fe185108e23bb43cb7c5e84283bbb7e9cd400cb6f42e684c4adbf9025377",
+    "size_bytes": 6345234
+  },
+  {
+    "chapter_id": 61,
+    "path": "frontend\\public\\videos\\course_1070\\chapter_061.mp4",
+    "backup": "originals\\course_1070\\chapter_061.original.mp4",
+    "old_sha256": "ae378726d63593e1811efb9866644da4aff92ca40ab1d9440d71a8e864835ebb",
+    "size_bytes": 5768667
+  },
+  {
+    "chapter_id": 62,
+    "path": "frontend\\public\\videos\\course_1070\\chapter_062.mp4",
+    "backup": "originals\\course_1070\\chapter_062.original.mp4",
+    "old_sha256": "ea2be560e3febfe1624a682409eced1f1ae3f449f374b1db4ae20787e4d2f41b",
+    "size_bytes": 5729013
+  },
+  {
+    "chapter_id": 63,
+    "path": "frontend\\public\\videos\\course_1070\\chapter_063.mp4",
+    "backup": "originals\\course_1070\\chapter_063.original.mp4",
+    "old_sha256": "a03e02d92237348be5c70a13f41137fe5610a9f9d6cf1dd1f732b00a0b66edef",
+    "size_bytes": 6328649
+  },
+  {
+    "chapter_id": 54,
+    "path": "frontend\\public\\videos\\course_1071\\chapter_054.mp4",
+    "backup": "originals\\course_1071\\chapter_054.original.mp4",
+    "old_sha256": "570faa33ccfa32dfb51680f767b939b3549298912aab761158549bb32f30de35",
+    "size_bytes": 6185974
+  },
+  {
+    "chapter_id": 55,
+    "path": "frontend\\public\\videos\\course_1071\\chapter_055.mp4",
+    "backup": "originals\\course_1071\\chapter_055.original.mp4",
+    "old_sha256": "7daed12bca11d9efd1a5833e5498639aac89b9a1c049c4371a9a77c8c796ea3e",
+    "size_bytes": 5925233
+  },
+  {
+    "chapter_id": 56,
+    "path": "frontend\\public\\videos\\course_1071\\chapter_056.mp4",
+    "backup": "originals\\course_1071\\chapter_056.original.mp4",
+    "old_sha256": "b70a41e2fac8024491b90bda072a1711660e07c52c1ded23e9de2c1a9eca240c",
+    "size_bytes": 6052168
+  },
+  {
+    "chapter_id": 57,
+    "path": "frontend\\public\\videos\\course_1071\\chapter_057.mp4",
+    "backup": "originals\\course_1071\\chapter_057.original.mp4",
+    "old_sha256": "a040dae4c75b710fea76f3cdef7c34a910521ae38724f023034793ae63fe8682",
+    "size_bytes": 5723625
+  },
+  {
+    "chapter_id": 58,
+    "path": "frontend\\public\\videos\\course_1071\\chapter_058.mp4",
+    "backup": "originals\\course_1071\\chapter_058.original.mp4",
+    "old_sha256": "5e7c3efa8c86d3acce61f149713d7cf9dea82cc9ce089f8c3ac2c4df8e1089d2",
+    "size_bytes": 5733494
+  },
+  {
+    "chapter_id": 11,
+    "path": "frontend\\public\\videos\\course_1072\\chapter_011.mp4",
+    "backup": "originals\\course_1072\\chapter_011.original.mp4",
+    "old_sha256": "31b8b020bc8ff4a484bb5afa09844305f6f6f3a15ea37dab8612d9ed05c1494f",
+    "size_bytes": 5606166
+  },
+  {
+    "chapter_id": 12,
+    "path": "frontend\\public\\videos\\course_1072\\chapter_012.mp4",
+    "backup": "originals\\course_1072\\chapter_012.original.mp4",
+    "old_sha256": "6f5d1731a1a562c38e1b73f385a515eb25d7ae48eea187e7b950863dc141a6a1",
+    "size_bytes": 5591868
+  },
+  {
+    "chapter_id": 13,
+    "path": "frontend\\public\\videos\\course_1072\\chapter_013.mp4",
+    "backup": "originals\\course_1072\\chapter_013.original.mp4",
+    "old_sha256": "d451f21761aeb1e2918bfa6097e97e1bdb8a917cee54ea9aed46ff9ed642b851",
+    "size_bytes": 5523122
+  },
+  {
+    "chapter_id": 14,
+    "path": "frontend\\public\\videos\\course_1072\\chapter_014.mp4",
+    "backup": "originals\\course_1072\\chapter_014.original.mp4",
+    "old_sha256": "72d7889b64951c716000789c121943a0c297e637116c839b9f00c22880005daf",
+    "size_bytes": 5634561
+  },
+  {
+    "chapter_id": 15,
+    "path": "frontend\\public\\videos\\course_1072\\chapter_015.mp4",
+    "backup": "originals\\course_1072\\chapter_015.original.mp4",
+    "old_sha256": "7c054c6f12f6d02ee78f80bbb23146c35d4db330a20f361fc8e924bc112c8c08",
+    "size_bytes": 5850561
+  }
+]

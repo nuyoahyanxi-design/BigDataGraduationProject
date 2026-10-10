@@ -1,0 +1,133 @@
+{
+  "formal_video_count": 25,
+  "replaced_videos": 24,
+  "batch_videos": 20,
+  "previous_confirmed_videos": 4,
+  "backups_intact": 25,
+  "chapter_006_unchanged": true,
+  "protected_files_unchanged": 758,
+  "acceptance_json": "outputs\\course-teaching-rhythm-final-replacement\\acceptance\\acceptance-20261010T152724331653Z.json",
+  "accepted": true,
+  "checks": [
+    {
+      "chapter_id": 1,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 2,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 3,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 4,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 5,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 59,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 60,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 61,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 62,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 63,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 54,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 55,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 56,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 57,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 58,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 11,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 12,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 13,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 14,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 15,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 7,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 8,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 9,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    },
+    {
+      "chapter_id": 10,
+      "formal_matches_candidate": true,
+      "backup_matches_old": true
+    }
+  ]
+}

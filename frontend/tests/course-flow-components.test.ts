@@ -10,6 +10,11 @@ import ResourceDetailView from '../src/views/ResourceDetailView.vue'
 import CourseLearningView from '../src/views/CourseLearningView.vue'
 const { push } = vi.hoisted(() => ({ push: vi.fn() }))
 vi.mock('vue-router', () => ({ useRoute: () => ({ params: { id: '1071' } }), useRouter: () => ({ push }) }))
+// Navigation interaction adapter; actual catalogue markup is covered by chapter-navigation-ui.test.ts.
+vi.mock('../src/components/ChapterNavigation.vue', () => ({ default: defineComponent({
+  props:['chapters','disabled'],emits:['select'],
+  setup(props,{emit}) { return ()=>h('nav',props.chapters.map((chapter:any)=>h('button',{disabled:props.disabled,onClick:()=>emit('select',chapter)},`${chapter.position}. ${chapter.title}`))) },
+}) }))
 vi.mock('element-plus', () => {
   const button = defineComponent({ setup(_, { slots, attrs }) { return () => h('button', attrs, slots.default?.()) } })
   const plain = defineComponent({ setup(_, { slots, attrs }) { return () => h('div', attrs, slots.default?.()) } })
@@ -40,19 +45,25 @@ let app: ReturnType<typeof renderer.createApp> | undefined
 afterEach(() => { app?.unmount(); http.defaults.adapter=original; push.mockClear() })
 async function mount(completed: number, view = ResourceDetailView) {
   const writes: string[]=[]
+  const events: {event_type:string;event_uuid:string}[]=[]
   http.defaults.adapter=async config => {
     let data: unknown
     if(config.url?.endsWith('/course')) data={ resource_id:1071,title:'课程',status:'published',course_status:'completed',chapters:Array.from({length:5},(_,i)=>({id:i+1,position:i+1,title:'章节'+(i+1),content:'正文',knowledge_tags:[],completed:i<completed,video_url:'/demo/video.mp4',video_cover:null,video_name:null,video_duration_seconds:null})) }
     else if(config.url?.endsWith('/progress')) data={items:[{resource_id:1071,status:'completed'}]}
     else if(config.url?.endsWith('/favorites')) data={items:[],total:0,page:1,page_size:100}
-    else if(config.method==='post') { writes.push(config.url!); data={chapter_completed:completed===5,course_status:'completed'} }
+    else if(config.method==='post') {
+      writes.push(config.url!)
+      const event=JSON.parse(config.data ?? '{}')
+      if(event.event_type)events.push(event)
+      data={chapter_completed:event.event_type==='chapter_complete' || completed===5,course_status:'completed'}
+    }
     else data={id:1071,title:'课程',summary:'简介',status:'published',tags:[],resource_type:'course',category_code:'databases',difficulty:'beginner'}
     return {config,status:200,statusText:'OK',headers:{},data}
   }
   const root=node('root')
   app=renderer.createApp(clientView(view)); app.use(createPinia()); app.provide(ssrContextKey, {modules:new Set()}); app.mount(root)
   await new Promise(resolve => setTimeout(resolve, 20)); await nextTick()
-  return {root,writes}
+  return {root,writes,events}
 }
 it.each([[0,'开始课程','未开始',0],[2,'继续学习','学习中',40],[5,'重新学习','已完成',100]] as const)('真实详情组件根据%d章完成展示状态和按钮', async (n,label,status,percent) => {
   const {root,writes}=await mount(n)
@@ -63,6 +74,24 @@ it.each([[0,'开始课程','未开始',0],[2,'继续学习','学习中',40],[5,'
   button.props.onClick()
   expect(push).toHaveBeenCalledWith({name:'course-learning',params:{id:1071}})
   expect(writes).toEqual(['/resources/1071/view']) // navigation does not start/complete the course
+})
+it('章节浏览和手动完成保留原事件，切换章节不自动完成',async()=>{
+  const {root,events}=await mount(0,CourseLearningView)
+  expect(events.map(e=>e.event_type)).toEqual(['chapter_view'])
+  const complete=flatten(root).find(n=>n.type==='button' && text(n)==='完成本章节')!
+  expect(complete).toBeDefined()
+  await complete.props.onClick()
+  await nextTick()
+  expect(events.map(e=>e.event_type)).toEqual(['chapter_view','chapter_complete'])
+  expect(text(root)).toContain('章节完成 20%')
+  expect(events.every(e=>/^[0-9a-f-]{36}$/.test(e.event_uuid))).toBe(true)
+  const second=flatten(root).find(n=>n.type==='button' && text(n).includes('2. 章节2'))!
+  expect(second).toBeDefined()
+  await second.props.onClick()
+  await new Promise(resolve=>setTimeout(resolve,20));await nextTick()
+  expect(text(root)).toContain('第 2 章')
+  expect(events.map(e=>e.event_type)).toEqual(['chapter_view','chapter_complete','chapter_view'])
+  expect(text(root)).toContain('章节完成 20%')
 })
 it.each([[2,3],[5,5]])('课程组件%d章已完成时定位章节%d', async (n,selected) => {
   const {root,writes}=await mount(n,CourseLearningView)

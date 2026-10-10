@@ -28,6 +28,7 @@ it('完成率来自章节而非旧课程状态',()=>{
 })
 it('视频仅允许本地静态地址，拒绝脚本和路径穿越',()=>{
   expect(safeVideoAsset('/videos/demo.mp4')).toBe('/videos/demo.mp4')
+  expect(safeVideoAsset('/videos/course_1069/chapter_006.mp4')).toBe('/videos/course_1069/chapter_006.mp4')
   for(const bad of ['javascript:alert(1)','https://example.com/a.mp4','/videos/../a.mp4','/videos/a.png','//example.com/a.mp4'])expect(safeVideoAsset(bad)).toBeUndefined()
   expect(safeVideoAsset('/images/cover.png','images')).toBe('/images/cover.png')
 })
@@ -44,8 +45,14 @@ it('HTML5播放器提供原生播放暂停控制，无视频显示阅读回退',
   const render=(url:string|null)=>renderToString(createSSRApp({render:()=>h(LearningVideo,{url,cover:null,name:'RDD',duration:null})}))
   const html=await render('/videos/demo.mp4')
   expect(html).toContain('controls');expect(html).toContain('preload="metadata"');expect(html).toContain('/videos/demo.mp4')
+  expect(html).toContain('视频时长：待视频加载')
   const empty=await render(null)
   expect(empty).toContain('教学视频暂未提供或无法加载');expect(empty).not.toContain('<video')
+})
+it('视频标题与实测时长按分秒显示',async()=>{
+  const html=await renderToString(createSSRApp({render:()=>h(LearningVideo,{url:'/videos/course_1069/chapter_006.mp4',cover:null,name:'DataFrame与Schema教学视频',duration:245})}))
+  expect(html).toContain('DataFrame与Schema教学视频')
+  expect(html).toContain('视频时长：4:05')
 })
 it('Markdown标题代码可展示，HTML不能执行',async()=>{
   const content='# RDD\n<script>alert(1)</script>\n```python\nprint(1)\n```'

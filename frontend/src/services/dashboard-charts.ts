@@ -11,7 +11,7 @@ export function dashboardCharts(result: DashboardResponse) {
     grid: { left: 45, right: 20, bottom: 80, top: 20 },
     xAxis: { type: 'category', data: metric?.behavior.daily.map((row) => row.day) ?? [], axisLabel: { rotate: 35 } },
     yAxis: { type: 'value', minInterval: 1 },
-    series: ([['resource_view','浏览'],['learning_start','开始'],['learning_complete','完成'],['favorite_add','收藏'],['favorite_remove','取消收藏']] as const)
+    series: ([['resource_view','浏览次数'],['learning_start','开始学习次数'],['learning_complete','完成学习次数'],['favorite_add','收藏次数'],['favorite_remove','取消收藏次数']] as const)
       .map(([key, name]) => ({ type: 'line', name, data: metric?.behavior.daily.map((row) => row[key]) ?? [], smooth: false })),
   }
   const distribution: EChartsOption = { tooltip, legend: { bottom: 0 }, series: [{ type: 'pie', radius: ['35%','65%'], center: ['50%','43%'],

@@ -1,0 +1,447 @@
+{
+  "checked_at_utc": "2026-10-10T15:27:24.330658+00:00",
+  "root": "D:\\BigDataGraduationProject\\frontend\\public\\videos",
+  "catalog_source": "mysql_read_only_snapshot",
+  "total_courses": 5,
+  "total_chapters": 25,
+  "video_count": 25,
+  "missing": 0,
+  "anomalies": 0,
+  "passed": 25,
+  "accepted": true,
+  "duration_range_seconds": [
+    180,
+    300
+  ],
+  "decoder": "D:\\BigDataGraduationProject\\work\\free-video-runtime\\imageio_ffmpeg\\binaries\\ffmpeg-win-x86_64-v7.1.exe",
+  "anomaly_count_definition": "failed non-missing chapters plus course/directory issues plus unexpected files",
+  "chapters": [
+    {
+      "course_id": 1068,
+      "chapter_id": 1,
+      "file": "course_1068/chapter_001.mp4",
+      "expected_url": "/videos/course_1068/chapter_001.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "158ec660c2cb38548f83a393977e3c58818208e6a53e582ab5397722882c013a",
+      "size_bytes": 5634933,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 229.0,
+        "decoded_frames": 5725,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1068,
+      "chapter_id": 2,
+      "file": "course_1068/chapter_002.mp4",
+      "expected_url": "/videos/course_1068/chapter_002.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "7e0efe489f9bbea6ca23d84239ccf3d8ac04c2ea6b2f2c45784e9dcbe2ec149c",
+      "size_bytes": 6244437,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 232.16,
+        "decoded_frames": 5804,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1068,
+      "chapter_id": 3,
+      "file": "course_1068/chapter_003.mp4",
+      "expected_url": "/videos/course_1068/chapter_003.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "c15a38832db3aa6b627f29d502697bb60512f178eee1ee929c618e974fae279c",
+      "size_bytes": 5677365,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 237.04,
+        "decoded_frames": 5926,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1068,
+      "chapter_id": 4,
+      "file": "course_1068/chapter_004.mp4",
+      "expected_url": "/videos/course_1068/chapter_004.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "0366da7b8e2aaeb88ca6d3606eafd5ca9fb326914ebc01cf077f1e76ad377cf9",
+      "size_bytes": 5713985,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 229.24,
+        "decoded_frames": 5731,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1068,
+      "chapter_id": 5,
+      "file": "course_1068/chapter_005.mp4",
+      "expected_url": "/videos/course_1068/chapter_005.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "b50ec1a08e9244b94502c30aff32bfb52378e1670e489ce10a4a7ceaa03b378d",
+      "size_bytes": 5834182,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 228.16,
+        "decoded_frames": 5704,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1069,
+      "chapter_id": 6,
+      "file": "course_1069/chapter_006.mp4",
+      "expected_url": "/videos/course_1069/chapter_006.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "35673cf02fc80b436555075644c2cab7cc59230e12d366178ac3deae0d4eb788",
+      "size_bytes": 4049299,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 219.72,
+        "decoded_frames": 5493,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1069,
+      "chapter_id": 7,
+      "file": "course_1069/chapter_007.mp4",
+      "expected_url": "/videos/course_1069/chapter_007.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "5138420bf241651af91e7f44f27428e12915bcfeeb0f2dd8ab3c601eafa09fbd",
+      "size_bytes": 6021282,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 232.44,
+        "decoded_frames": 5811,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1069,
+      "chapter_id": 8,
+      "file": "course_1069/chapter_008.mp4",
+      "expected_url": "/videos/course_1069/chapter_008.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "802b584ed0a35bcd1b7e782188c68e2ea46da6db8590b077ce2f54795f5268ba",
+      "size_bytes": 6156896,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 225.28,
+        "decoded_frames": 5632,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1069,
+      "chapter_id": 9,
+      "file": "course_1069/chapter_009.mp4",
+      "expected_url": "/videos/course_1069/chapter_009.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "93d8d09230ec52beeeedf600f7761b54dc34b5bef1e66350c7440359e45ca490",
+      "size_bytes": 5967135,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 221.96,
+        "decoded_frames": 5549,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1069,
+      "chapter_id": 10,
+      "file": "course_1069/chapter_010.mp4",
+      "expected_url": "/videos/course_1069/chapter_010.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "169fd9b39a56327756afdf653b19f44fdfa32c0416be53f677a96cfe7ab78d21",
+      "size_bytes": 6486960,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 235.68,
+        "decoded_frames": 5892,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1070,
+      "chapter_id": 59,
+      "file": "course_1070/chapter_059.mp4",
+      "expected_url": "/videos/course_1070/chapter_059.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "38029b17b8f6ab64d867333348c0d249513829ff7d014bf6b81bd785a717bef8",
+      "size_bytes": 5894662,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 225.56,
+        "decoded_frames": 5639,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1070,
+      "chapter_id": 60,
+      "file": "course_1070/chapter_060.mp4",
+      "expected_url": "/videos/course_1070/chapter_060.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "12a28833bece8e52df0563f63edee56a792deeb054a2cc26d09b5aa5267c7bd8",
+      "size_bytes": 6053740,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 228.8,
+        "decoded_frames": 5720,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1070,
+      "chapter_id": 61,
+      "file": "course_1070/chapter_061.mp4",
+      "expected_url": "/videos/course_1070/chapter_061.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "c03a3beeab97dcf2cf095e77285b7524e60877164d862d959ae5f858a82cb05f",
+      "size_bytes": 5693038,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 223.88,
+        "decoded_frames": 5597,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1070,
+      "chapter_id": 62,
+      "file": "course_1070/chapter_062.mp4",
+      "expected_url": "/videos/course_1070/chapter_062.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "f0ee2c08dafed56106bb80e6531ea6a84dc574fca97a2822112b825578d7c4d4",
+      "size_bytes": 5954362,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 227.24,
+        "decoded_frames": 5681,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1070,
+      "chapter_id": 63,
+      "file": "course_1070/chapter_063.mp4",
+      "expected_url": "/videos/course_1070/chapter_063.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "7d4f5eb43683c3567cc7479f9026127404055ec7604728c15a9da5d3dc267a25",
+      "size_bytes": 6528620,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 236.8,
+        "decoded_frames": 5920,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1071,
+      "chapter_id": 54,
+      "file": "course_1071/chapter_054.mp4",
+      "expected_url": "/videos/course_1071/chapter_054.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "b4db1f54d62267dd5feecd101bc0c6933fa2a6cd09c1b401828bf78b26ad484b",
+      "size_bytes": 6244316,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 229.92,
+        "decoded_frames": 5748,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1071,
+      "chapter_id": 55,
+      "file": "course_1071/chapter_055.mp4",
+      "expected_url": "/videos/course_1071/chapter_055.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "15411a3be7b1920fe4d26fe57e696ef7e86e549d42754c9b78bdf6659768a1f4",
+      "size_bytes": 5944423,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 235.52,
+        "decoded_frames": 5888,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1071,
+      "chapter_id": 56,
+      "file": "course_1071/chapter_056.mp4",
+      "expected_url": "/videos/course_1071/chapter_056.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "fd742f4e15877b08ccc7e1e695d52638590e7e6228ae4ce1990d6b07ecd0a5d3",
+      "size_bytes": 6218856,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 231.12,
+        "decoded_frames": 5778,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1071,
+      "chapter_id": 57,
+      "file": "course_1071/chapter_057.mp4",
+      "expected_url": "/videos/course_1071/chapter_057.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "d7b1f9d43bced7cfee7b2aa11dce046ae61eb1230a6bb80d71343a8207bad7c6",
+      "size_bytes": 5865391,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 234.28,
+        "decoded_frames": 5857,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1071,
+      "chapter_id": 58,
+      "file": "course_1071/chapter_058.mp4",
+      "expected_url": "/videos/course_1071/chapter_058.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "9af84d86e805db5ef1e1f1b77c33b44a7d144f2eb777eedbce569429ced9ddaa",
+      "size_bytes": 5882200,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 227.0,
+        "decoded_frames": 5675,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1072,
+      "chapter_id": 11,
+      "file": "course_1072/chapter_011.mp4",
+      "expected_url": "/videos/course_1072/chapter_011.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "904d768f1d86a3e973bb71b56be591b91591a3da6b7feca679ee320861564747",
+      "size_bytes": 5850788,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 230.96,
+        "decoded_frames": 5774,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1072,
+      "chapter_id": 12,
+      "file": "course_1072/chapter_012.mp4",
+      "expected_url": "/videos/course_1072/chapter_012.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "7c0a60f62a7d36716a8ad5e78726a580fd3d80bc6819ecd21d70912096339ad1",
+      "size_bytes": 5741038,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 222.68,
+        "decoded_frames": 5567,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1072,
+      "chapter_id": 13,
+      "file": "course_1072/chapter_013.mp4",
+      "expected_url": "/videos/course_1072/chapter_013.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "d08a662fe3406fd3227e75a8614f75fe48aa4b2ea5beb0c36e2fa6ffc6577d63",
+      "size_bytes": 5707499,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 226.4,
+        "decoded_frames": 5660,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1072,
+      "chapter_id": 14,
+      "file": "course_1072/chapter_014.mp4",
+      "expected_url": "/videos/course_1072/chapter_014.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "87aac40f16834429a57369ee9b44c6ffdb382f0389f0bc1f6437a34f411ace0d",
+      "size_bytes": 5868833,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 230.24,
+        "decoded_frames": 5756,
+        "exit_code": 0
+      }
+    },
+    {
+      "course_id": 1072,
+      "chapter_id": 15,
+      "file": "course_1072/chapter_015.mp4",
+      "expected_url": "/videos/course_1072/chapter_015.mp4",
+      "passed": true,
+      "reason": "passed",
+      "sha256": "17773a3149c71d43acac2baaa1d62787a0afc77f2a1152f2104df4e730fadb74",
+      "size_bytes": 5942113,
+      "decode": {
+        "passed": true,
+        "reason": "decoded",
+        "duration_seconds": 231.4,
+        "decoded_frames": 5785,
+        "exit_code": 0
+      }
+    }
+  ],
+  "catalog_and_directory_issues": [],
+  "unexpected_files": []
+}

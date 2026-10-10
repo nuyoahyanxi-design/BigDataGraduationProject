@@ -28,8 +28,9 @@ for (const role of ['admin', 'learner'] as const) it(`${role}看板路由权限`
 it('图表直接使用服务端已聚合数据', () => {
   const response = fixture as DashboardResponse
   const charts = dashboardCharts(response)
-  const trend = charts.trend.series as {data:number[]}[]
+  const trend = charts.trend.series as {name:string;data:number[]}[]
   expect(trend).toHaveLength(5)
+  expect(trend.map(row => row.name)).toEqual(['浏览次数','开始学习次数','完成学习次数','收藏次数','取消收藏次数'])
   expect(trend[0]?.data).toEqual(response.data?.metrics.behavior.daily.map(row=>row.resource_view))
   expect((charts.recommendation.series as {data:number[]}[])[0]?.data).toEqual([15,15])
   expect((charts.completion.series as {data:{value:number}[]}[])[0]?.data.map(row=>row.value)).toEqual([0,1])

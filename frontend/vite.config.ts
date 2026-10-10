@@ -14,7 +14,10 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       // Windows-mounted files may not emit reliable WSL filesystem notifications.
       watch: { usePolling: true, interval: 500 },
-      proxy: { '/api': { target, changeOrigin: true } },
+      proxy: {
+        '/api': { target, changeOrigin: true },
+        '/videos': { target, changeOrigin: true },
+      },
     },
   }
 })

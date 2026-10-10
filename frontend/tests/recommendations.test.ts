@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { http } from '../src/api/http'
 import { getRecommendations } from '../src/api/recommendations'
-import { formatScore } from '../src/types/recommendations'
+import { formatRecommendationScore, formatScore } from '../src/types/recommendations'
 import { createAuthGuard } from '../src/router/auth-guard'
 import { memoryStorage, newSession } from './helpers'
 
@@ -31,4 +31,12 @@ it('分数格式化保留精度并处理零分', () => {
 it('未登录不能访问推荐页面', async () => {
   memoryStorage()
   expect(await createAuthGuard(newSession())({ name: 'recommendations', meta: { requiresAuth: true } })).toEqual({ name: 'login' })
+})
+it('综合得分以百分比显示，热门热度保留原始量纲', () => {
+  expect(formatRecommendationScore('0.750000000000', 'content_v1')).toBe('综合推荐得分：75%')
+  expect(formatRecommendationScore('0.928476690885', 'content_v1')).toBe('综合推荐得分：92.8%')
+  expect(formatRecommendationScore('0', 'content_v1')).toBe('综合推荐得分：0%')
+  expect(formatRecommendationScore('1', 'content_v1')).toBe('综合推荐得分：100%')
+  expect(formatRecommendationScore('12.000000000000', 'popular_v1')).toBe('热度得分：12')
+  expect(formatRecommendationScore('12', 'content_v1')).toBe('原始推荐得分：12')
 })

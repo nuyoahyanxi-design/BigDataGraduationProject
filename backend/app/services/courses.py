@@ -8,6 +8,7 @@ from app.models import User, Resource, LearningProgress, CourseChapter, ChapterP
 from app.services import learning
 from app.services.resources import lock_admin, bump
 from app.services.course_presentation import HIDDEN_LEARNER_RESOURCE_IDS, chapter_status
+from app.core.video_catalog import playback_chapter, discovered_url
 
 def visible(db, resource_id, user):
     resource = db.get(Resource,resource_id)
@@ -23,7 +24,7 @@ def read_course(db, resource_id, user):
     progress=db.get(LearningProgress,(user.id,resource_id))
     return {'resource_id':resource_id,'title':resource.title,'content':resource.content,'status':resource.status,
             'course_status':chapter_status(sum(bool(p.completed_at) for p in rows.values()),len(chapters)) if chapters else (progress.status if progress else 'not_started'),
-            'chapters':[{**{c.name:getattr(ch,c.name) for c in CourseChapter.__table__.columns},
+            'chapters':[{**playback_chapter(ch, discover=user.role!='admin'),
                          'completed':bool(rows.get(ch.id) and rows[ch.id].completed_at)} for ch in chapters]}
 
 def create_chapter(db, resource_id, user, payload):
@@ -83,7 +84,7 @@ def act(db, user_id, resource_id, chapter_id, payload, received_at):
             stamp=max(learning.event_time(),received_at,progress.updated_at if progress else received_at)
             if payload.event_type!='chapter_view' and cp is None:
                 raise HTTPException(409,'Open the chapter before learning actions')
-            if payload.event_type=='video_play' and not chapter.video_url:
+            if payload.event_type=='video_play' and not (chapter.video_url or discovered_url(resource_id, chapter_id)):
                 raise HTTPException(409,'This chapter has no video')
             if cp is None:
                 cp=ChapterProgress(user_id=user_id,chapter_id=chapter_id,first_started_at=stamp)

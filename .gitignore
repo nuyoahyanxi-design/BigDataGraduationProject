@@ -111,3 +111,56 @@ _pgpass
 *.tar
 *.tar.gz
 *.tgz
+
+# Ignore unreviewed local media; final defense videos are allowlisted below.
+/frontend/public/videos/**/*.mp4
+/frontend/public/videos/**/*.webm
+
+# Final submission reports only; diagnostic and intermediate reports stay local.
+!/outputs/final-system-acceptance-report.md
+!/outputs/defense-final-acceptance-report.md
+!/outputs/graduation-final-status-report.md
+!/outputs/graduation-final-freeze-check-report.md
+!/outputs/graduation-defense-demo-script.md
+!/outputs/defense-demo-flow-and-screenshot-list.md
+!/outputs/defense-demo-optimization-report.md
+!/outputs/defense-risk-list.md
+!/outputs/formal-release-result-report.md
+!/outputs/formal-release-readiness-report.md
+!/outputs/post-release-browser-acceptance-report.md
+!/outputs/real-account-browser-integration-report.md
+!/outputs/course-teaching-rhythm-final-replacement-report.md
+!/outputs/course-video-footer-fix-report.md
+!/outputs/chapter-006-edge-tts-quality-report.md
+!/outputs/chapter-006-video-quality-report.md
+!/outputs/formal-course-chapters-acceptance-report.md
+!/outputs/demo-account-setup-report.md
+!/outputs/windows-one-click-start-acceptance-report.md
+!/outputs/final-git-submission-list.md
+
+# Latest video replacement evidence; backups, candidates and logs stay local.
+!/outputs/course-teaching-rhythm-final-replacement/
+/outputs/course-teaching-rhythm-final-replacement/*
+!/outputs/course-teaching-rhythm-final-replacement/backup-manifest.json
+!/outputs/course-teaching-rhythm-final-replacement/replacement.json
+!/outputs/course-teaching-rhythm-final-replacement/final-integrity.json
+!/outputs/course-teaching-rhythm-final-replacement/acceptance-execution.json
+!/outputs/course-teaching-rhythm-final-replacement/videos-sha256.txt
+!/outputs/course-teaching-rhythm-final-replacement/acceptance/
+
+# Exactly the 25 accepted course videos, including unchanged chapter_006.
+!/frontend/public/videos/course_1068/chapter_00[1-5].mp4
+!/frontend/public/videos/course_1069/chapter_00[6-9].mp4
+!/frontend/public/videos/course_1069/chapter_010.mp4
+!/frontend/public/videos/course_1070/chapter_059.mp4
+!/frontend/public/videos/course_1070/chapter_06[0-3].mp4
+!/frontend/public/videos/course_1071/chapter_05[4-8].mp4
+!/frontend/public/videos/course_1072/chapter_01[1-5].mp4
+
+# Processing remnants and isolated test outputs.
+*.part
+*.temp
+*.footer.part
+test-results/
+playwright-report/
+blob-report/

@@ -10,6 +10,7 @@ from starlette.concurrency import run_in_threadpool
 from app.core.config import Settings
 from app.database.session import build_engine, build_session_factory
 from app.core.security import AuthSettings
+from app.core.media import build_video_files
 from app.api.users import router
 from app.api.resources import router as resources_router
 from app.api.learning import router as learning_router
@@ -51,6 +52,7 @@ app.include_router(admin_router)
 app.include_router(ai_router)
 app.include_router(courses_router)
 app.include_router(course_ai_router)
+app.mount('/videos', build_video_files(), name='course-videos')
 
 
 @app.middleware('http')

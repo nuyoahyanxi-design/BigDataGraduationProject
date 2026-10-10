@@ -83,12 +83,12 @@ watch(()=>route.params.id,load,{immediate:true})
     <ElButton v-else-if="error && !course" @click="load">重新加载</ElButton>
     <template v-if="course"><header class="course-heading"><p class="course-eyebrow">课程学习</p><h1>{{course.title}}</h1><p class="course-status">课程状态：{{course.course_status==='completed'?'已完成':course.course_status==='in_progress'?'学习中':'未开始'}}<template v-if="course.chapters.length"> · 章节完成 {{percent}}%</template></p></header>
       <ElAlert v-if="notice" :title="notice" type="success" :closable="false" />
-      <p class="course-note">章节完成为阅读后的手动确认，不验证学习能力或实际观看时长；演示视频尚未提供。</p>
+      <p class="course-note">视频播放结束后，请阅读章节内容并手动确认完成本章节；章节完成不验证学习能力或实际观看时长。</p>
       <div class="learning-workspace"><div class="learning-materials">
       <div v-if="course.chapters.length" class="course-layout">
         <aside class="course-sidebar"><ChapterNavigation :course-title="course.title" :chapters="course.chapters" :selected="selected?.id" :disabled="busy || !!pending" @select="selectChapter" /></aside>
         <article v-if="selected" class="panel course-content"><header class="chapter-heading"><p>第 {{selected.position}} 章</p><h2>{{selected.title}}</h2></header>
-          <LearningVideo :key="selected.id" :url="selected.video_url" :cover="selected.video_cover" :name="selected.video_name" :duration="selected.video_duration_seconds"
+          <LearningVideo :key="selected.id" :url="selected.video_url" :cover="selected.video_cover" :name="selected.video_name || selected.title + '教学视频'" :duration="selected.video_duration_seconds"
             :disabled="busy || !!pending" @play="seconds=>selected && action(selected,'video_play',seconds)" />
           <ChapterTeachingContent :chapter="selected" />
           <div class="chapter-actions"><ElButton type="primary" :disabled="busy || !!pending || selected.completed || course.status!=='published'" @click="action(selected,'chapter_complete')">{{selected.completed?'本章节已完成':'完成本章节'}}</ElButton></div>
