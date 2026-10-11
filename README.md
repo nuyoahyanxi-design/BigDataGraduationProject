@@ -70,7 +70,7 @@ BigDataGraduationProject/
 ├── scripts/                 # 启动、策略配置及教学资料工具
 ├── docs/                    # 架构、阶段设计、部署与答辩指南
 ├── outputs/                 # 最终报告/证据白名单；生成产物忽略
-├── screenshots/             # GitHub展示截图，当前为占位目录
+├── screenshots/             # GitHub展示用真实系统截图
 ├── tests/                   # 根测试预留；主要测试在各模块下
 ├── data/                    # 本机分层数据，忽略Git
 ├── environments/            # 本机环境与安全加载工具，部分忽略
@@ -98,18 +98,37 @@ BigDataGraduationProject/
 
 ## 系统截图
 
-截图目录为[`screenshots/`](screenshots/)。目前未添加真实截图，仅保留`.gitkeep`，因此不展示虚构截图或失效图片链接。
+以下图片均于2026-10-11从本机真实运行页面采集，未生成虚构界面。学习者页面使用student_demo，数据看板使用admin_demo。画像位于推荐页面中；数据分析展示已发布离线批次，不能视为实时重算或真实用户效果研究。
 
-| 待补充截图 | 建议文件名 | 对应真实页面 |
-|---|---|---|
-| 登录页面 | login.png | /login |
-| 首页 | home.png | / |
-| 课程列表与章节学习 | courses.png、course-learning.png | /resources、/resources/:id/learn |
-| 用户画像 | user-profile.png | /recommendations中的画像区域，无独立画像路由 |
-| 推荐页面 | recommendations.png | /recommendations |
-| 管理看板（可选） | dashboard.png | /dashboard，管理员权限 |
+### 登录页面
 
-截图仅使用真实运行页面，隐藏密码、密钥、令牌及个人敏感信息。采集建议见[论文截图清单](docs/thesis-screenshot-checklist.md)。
+![登录页面](screenshots/01-login.png)
+
+### 系统首页
+
+![系统首页](screenshots/02-home.png)
+
+### 课程列表
+
+![课程列表](screenshots/03-course-list.png)
+
+### 课程学习
+
+![课程学习](screenshots/04-learning.png)
+
+### 用户画像
+
+![用户画像区域](screenshots/05-profile.png)
+
+### 推荐结果
+
+![推荐结果](screenshots/06-recommendation.png)
+
+### 数据分析
+
+![数据分析看板](screenshots/07-dashboard.png)
+
+截图路由与采集边界见[截图说明](screenshots/README.md)。页面浏览按既有业务规则可能记录学习事件，本轮未手动修改账号、进度或分析结果，未运行Spark。
 
 ## 项目文档与验收
 
