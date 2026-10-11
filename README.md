@@ -1,8 +1,142 @@
-# 基于 Spark 的学习行为分析与个性化资源推荐系统设计与实现
+# 大数据智能学习平台系统
 
-本科毕业设计项目。主线为学习操作、行为采集、Spark清洗与画像、个性化推荐、展示和可复现实验。
+**大数据技术专业毕业设计 · 学习行为分析 · 用户画像 · 个性化资源推荐**
 
-当前阶段：最终验收与交付整理。已实现用户、资源、学习行为、Spark数据链路、画像、推荐、离线实验、学习者前端、数据看板与管理员后台。当前为本机本科毕设MVP；真实用户研究、生产部署与集群性能尚未验收。
+本项目的研究主题为“基于 Spark 的学习行为分析与个性化资源推荐系统设计与实现”。采用 Vue 3、FastAPI、MySQL 与 PySpark，构建从在线学习、行为采集到离线分析、推荐发布及可视化展示的完整链路。
+
+## 项目简介
+
+在线学习平台通常积累了浏览、学习开始、完成与收藏等行为，但仅提供资源列表难以反映学习者兴趣与资源使用情况。本项目将这些行为转化为可分析的数据快照，通过 Spark 清洗、聚合和画像计算，为学习者提供带有推荐理由的资源建议，为管理员提供学习行为统计。
+
+系统目标是形成可解释、可追溯、适合本科毕业答辩演示的闭环：**学习操作 → 行为记录 → 批次分析 → 画像与推荐 → 页面展示**。结果包含批次和来源信息，避免将离线结果误认为实时重算。
+
+当前定位为本机运行的毕业设计系统。已实现功能不等同于生产集群性能或真实用户研究结论。
+
+## 技术架构
+
+| 层次 | 实际技术与职责 |
+|---|---|
+| 前端 | Vue 3、TypeScript、Vite、Element Plus、Pinia、Vue Router、Axios、ECharts |
+| 后端 | Python、FastAPI、Uvicorn、SQLAlchemy、PyMySQL；JWT认证与角色权限 |
+| 数据库 | MySQL 8、InnoDB、utf8mb4；SQL脚本迁移 |
+| 大数据分析 | PySpark / Spark 3.5.7、Spark SQL、Parquet、JDBC；本机local[2]批处理 |
+| 推荐 | 热度基线popular_v1、融合标签相似度/个人行为/热度的content_v1 |
+| AI扩展 | 后端对接Agnes模型；课程资料关键词检索、引用与个人问答历史 |
+| 验证 | 后端与Spark pytest，前端Vitest、TypeScript检查与Vite构建 |
+
+Hadoop HDFS是项目中的教学课程主题；当前数据链路使用本地Parquet文件，不能据此宣称部署了HDFS或Hadoop集群。没有实现ALS推荐或向量检索。
+
+## 系统功能
+
+| 模块 | 已实现能力 |
+|---|---|
+| 用户模块 | 注册、登录、JWT认证、兴趣标签；学习者与管理员权限隔离 |
+| 课程与资源 | 搜索与筛选、资源详情、章节目录、Markdown教学正文、目标/示例代码/练习、视频播放、手动完成与章节进度 |
+| 学习行为 | 浏览、开始、完成、收藏/取消收藏；事件校验、幂等与事务处理 |
+| 数据处理 | MySQL五表分析投影快照、行为清洗与质量检查、独立批次及来源追踪 |
+| 用户画像 | 标签兴趣、学习行为统计及批次结果；在推荐页面配套展示 |
+| 个性化推荐 | 热度与融合内容推荐、推荐理由、已完成资源过滤、时间划分离线实验 |
+| 管理与看板 | 用户和资源管理、课程/章节编辑与发布、行为统计图表和批次来源展示 |
+| AI学习助手 | 通用问答与课程问答；课程资料外发确认、资源许可、额度、引用与历史；不自动改变学习进度 |
+
+正式课程视频共 **5门课程、25章**，采用1280×720、16:9规格。最新节奏优化版本验收为 **视频25 / 缺失0 / 异常0 / 通过25**，详见[最终替换报告](outputs/course-teaching-rhythm-final-replacement-report.md)。新增旁白字幕作为独立SRT留在候选交付目录，当前播放器不自动加载这些字幕文件。
+
+## 大数据处理流程
+
+```mermaid
+flowchart TD
+    A[MySQL：用户、资源、进度、收藏、学习事件] --> B[ODS：一致性分析快照 / Parquet]
+    B --> C[DWD：清洗、有效行为与质量检查]
+    C --> D[画像特征与行为聚合计算]
+    D --> E[ADS：画像、推荐及看板结果 / Parquet]
+    E --> F[结果校验与批次发布]
+    F --> G[MySQL结果表 / latest批次指针]
+    G --> H[FastAPI读取]
+    H --> I[Vue学习者页面 / 管理看板]
+```
+
+实际落盘层为 **ODS → DWD → ADS**；中间聚合在任务内完成，没有独立DWS目录。抽取针对分析所需字段，不是数据库完整备份。各任务校验成功后发布，保留历史批次；网页刷新不触发Spark重新计算。课程章节事件与主分析五表之间存在桥接规则，不把全部章节事件直接等同于Spark输入。
+
+## 项目目录结构
+
+```text
+BigDataGraduationProject/
+├── backend/                 # API、服务、ORM、认证、工具与测试
+├── frontend/                # Vue页面、组件、路由、测试
+│   └── public/videos/       # 五门课程的25个正式MP4
+├── spark/                   # jobs、utils、configs、tests、README
+├── database/                # migrations/001–007、种子与数据库说明
+├── configs/                 # 安全默认模板；本机私有配置不提交
+├── scripts/                 # 启动、策略配置及教学资料工具
+├── docs/                    # 架构、阶段设计、部署与答辩指南
+├── outputs/                 # 最终报告/证据白名单；生成产物忽略
+├── screenshots/             # GitHub展示截图，当前为占位目录
+├── tests/                   # 根测试预留；主要测试在各模块下
+├── data/                    # 本机分层数据，忽略Git
+├── environments/            # 本机环境与安全加载工具，部分忽略
+├── work/                    # 临时产物，忽略Git
+├── wsl/                     # 本机WSL存储，忽略Git
+├── spark-experiments/        # 本机环境实验产物，忽略Git
+├── code/                    # 历史环境预留目录
+├── start-project.bat        # Windows本机启动入口
+└── README.md
+```
+
+项目没有独立`sql/`目录，迁移SQL位于`database/migrations/`。以上为本机真实结构；被忽略的运行目录不一定出现在GitHub检出结果中。
+
+## 部署环境
+
+- 当前部署方式：Windows + WSL2 Ubuntu 22.04，Windows MySQL 8，Java 17，Python 3.11，Node.js 22。
+- Python依赖以[backend/requirements.txt](backend/requirements.txt)及开发依赖为准；前端以`package-lock.json`恢复，Node要求`>=22.12.0 <23`。
+- Spark使用本地模式；Connector/J须单独恢复，见[Spark说明](spark/README.md)。未提供已验收的生产集群或容器化部署。
+- 本机可双击`start-project.bat`启动；数据库、已有WSL环境、依赖和安全凭据需提前准备。
+- 前端：`http://localhost:5173`；后端接口文档：`http://localhost:8000/docs`。
+- 新机器需根据[数据库说明](database/README.md)恢复迁移与必要教学数据，不能将源码检出视为数据库已经恢复。已有数据库不要重复执行初始化。
+- 数据库密码、JWT_SECRET及AI密钥通过本机安全机制加载，禁止写入README、截图或提交。AI需要有效模型配置与网络条件。
+
+详细安装、启动、测试和开发约束保留在下方“部署与维护参考”中；本次仅修改展示文档，没有执行迁移、启动分析任务或重新验收全系统。
+
+## 系统截图
+
+截图目录为[`screenshots/`](screenshots/)。目前未添加真实截图，仅保留`.gitkeep`，因此不展示虚构截图或失效图片链接。
+
+| 待补充截图 | 建议文件名 | 对应真实页面 |
+|---|---|---|
+| 登录页面 | login.png | /login |
+| 首页 | home.png | / |
+| 课程列表与章节学习 | courses.png、course-learning.png | /resources、/resources/:id/learn |
+| 用户画像 | user-profile.png | /recommendations中的画像区域，无独立画像路由 |
+| 推荐页面 | recommendations.png | /recommendations |
+| 管理看板（可选） | dashboard.png | /dashboard，管理员权限 |
+
+截图仅使用真实运行页面，隐藏密码、密钥、令牌及个人敏感信息。采集建议见[论文截图清单](docs/thesis-screenshot-checklist.md)。
+
+## 项目文档与验收
+
+- [总体架构](docs/system-final-architecture.md)
+- [最终验收与答辩指南](docs/final-project-acceptance-guide.md)
+- [系统验收报告](outputs/final-system-acceptance-report.md)
+- [答辩验收报告](outputs/defense-final-acceptance-report.md)
+- [正式批次发布报告](outputs/formal-release-result-report.md)
+- [最新视频验收](outputs/course-teaching-rhythm-final-replacement/acceptance/acceptance-20261010T152724331653Z.md)
+- [答辩演示脚本](outputs/graduation-defense-demo-script.md)
+
+历史报告记录各阶段当时状态，不能替代最新视频版本证据或本机演示前检查。精确测试数量与未验证项请以对应报告范围为准。
+
+## 作者信息
+
+**nuyoahyanxi-design**
+
+大数据技术专业毕业设计
+
+---
+
+## 部署与维护参考
+
+以下保留既有README中的详细部署与开发说明，版本性结论按上方最新验收入口核对。
+
+<details>
+<summary>展开：环境恢复、启动、测试、课程管理与AI配置</summary>
 
 ## 技术栈
 
@@ -23,14 +157,14 @@
 | configs | 根配置预留；实际Spark参数位于spark/configs |
 | tests | 根测试预留；实际测试位于backend/tests、frontend/tests、spark/tests |
 | docs | 各阶段设计、总体架构、环境与论文截图清单 |
-| outputs | 报告、实验结果与交付物，默认不纳入Git |
+| outputs | 最终报告与验收证据按.gitignore白名单提交；实验与中间产物忽略 |
 | work | 既有环境工具与临时产物，不纳入Git |
 | environments | 已有激活与安全凭据工具，本轮不修改，不纳入Git |
 | wsl | 已有虚拟磁盘与Swap，本轮不修改，不纳入Git |
 | spark-experiments | 已有环境验收数据，本轮不修改，不纳入Git |
 | code | 环境阶段遗留空目录，保留，不作为正式源码根目录 |
 
-Git不记录空目录。data、outputs、虚拟环境、node_modules、JDBC二进制及WSL磁盘等不随源码提交；交付时应单独保留必要报告及注明来源的数据。不要把源码检出当作已恢复数据库和凭据。
+Git不记录空目录。data、outputs中的非白名单产物、虚拟环境、node_modules、JDBC二进制及WSL磁盘等不随源码提交；交付时应单独保留必要报告及注明来源的数据。不要把源码检出当作已恢复数据库和凭据。
 
 ## 开发规范
 
@@ -44,7 +178,7 @@ Git不记录空目录。data、outputs、虚拟环境、node_modules、JDBC二�
 8. 虚拟环境、node_modules、数据、WSL磁盘和日志不提交。临时产物放work，交付物放outputs。
 9. 命名使用英文；依赖按当前清单和lockfile恢复，不为追新升级。
 10. 测试重点为权限、幂等、事务、批次发布、候选过滤和实验边界。
-11. AI、ALS、测验、时长、曝光归因和集群展示延期，不计入基础版本完成标准。
+11. AI助手已作为扩展模块实现；ALS、自动测验、精确时长归因与集群性能不作为当前验收能力。
 12. 提交前检查差异和忽略规则，提交说明描述具体改动及验证结果。
 
 ## 环境使用
@@ -71,7 +205,7 @@ Windows根目录为D:\BigDataGraduationProject。已有快捷方式仍指向code
 1. Windows启用WSL2并安装Ubuntu22.04；MySQL8.0运行在Windows。准备项目目录D:\BigDataGraduationProject，在WSL中对应/mnt/d/BigDataGraduationProject。
 2. Ubuntu安装git、curl、wget和OpenJDK17；JAVA_HOME使用/usr/lib/jvm/java-17-openjdk-amd64。安装Python3.11及venv组件，不替换系统Python；新机器建立独立bigdata-graduation-env。当前本机虚拟环境为/home/nuyoah/.venvs/bigdata-graduation-env，必须复用。
 3. 安装Node22.22.2与npm10.9.7，保持Node22版本线；准备VS Code及Remote WSL、Python、Vue扩展。
-4. 将MySQL设置为utf8mb4，准备bigdata_graduation数据库及专用账号；新空库按database/README.md执行001→002→003。已有数据库先备份检查，禁止重复迁移或关闭外键强行覆盖。
+4. 将MySQL设置为utf8mb4，准备bigdata_graduation数据库及专用账号；新空库按database/README.md及对应模块指南依次恢复001–007迁移。已有数据库先备份检查，禁止重复迁移或关闭外键强行覆盖。
 5. 在已激活Python环境恢复依赖：`python -m pip install -r backend/requirements-dev.txt`，`python -m pip install pyspark==3.5.7`；运行`python -m pip check`。前端在frontend执行`npm ci`，使用已有lockfile。
 6. 恢复Spark JDBC驱动到spark/lib/mysql-connector-j-8.0.33.jar，官方Maven坐标com.mysql:mysql-connector-j:8.0.33；SHA256为e2a3b2fc726a1ac64e998585db86b30fa8bf3f706195b78bb77c5f99bf877bd9。该JAR被Git忽略，不要误判为已随源码交付。
 7. 安全设置MYSQL_HOST、MYSQL_PORT、MYSQL_DATABASE、MYSQL_USER、MYSQL_PASSWORD、MYSQL_CHARSET=utf8mb4及JWT_SECRET。密码仅通过安全存储或私密进程环境注入，禁止放在命令参数、报告、源码和VITE_变量中。本机activate-bigdata.sh私密加载数据库配置，backend/run.py加载Windows JWT安全凭据；两者绑定当前Windows环境，移机不能直接假定可用。
@@ -114,7 +248,7 @@ python -m spark.jobs.recommendations
 python -m spark.jobs.dashboard_metrics
 ```
 
-每步成功才进入下一步。推荐和看板读取已发布批次；页面刷新不会自动重算。结果见outputs/*-latest.json、data/ods、data/dwd、data/ads。配置位于spark/configs。Spark为local[2]、driver1g，单表抽取上限50000行；用于本机MVP，不宣称集群性能。
+每步成功才进入下一步。推荐和看板读取已发布批次；页面刷新不会自动重算。结果见outputs/*-latest.json、data/ods、data/dwd、data/ads。没有独立落盘的DWS层。配置位于spark/configs。Spark为local[2]、driver1g，单表抽取上限50000行；用于本机MVP，不宣称集群性能。
 
 停止前后端按Ctrl+C；不要停止或删除MySQL/WSL发行版来退出项目。Spark任务正常结束会释放会话。
 
@@ -253,7 +387,7 @@ AI日额度按UTC日（北京时间08:00）刷新。明确设置`APP_ENV=develop
 
 内部429通过`X-AI-Limit-Source`区分个人日额度、平台日额度、并发，并附`Retry-After`；页面显示友好说明。安全元数据诊断位于`outputs/ai-request-diagnostics.jsonl`，不包含问题、答案、Key或Authorization。此次已确认的429属于内部额度，未添加供应商自动重试。
 
-最终冻结与答辩准备请阅读 `docs/final-project-acceptance-guide.md`，本轮验收结果见 `outputs/project-freeze-acceptance-report.md`。Spark既有批次重发布测试存在不可变冲突，不能将准备阶段等同于全系统验收通过。正式答辩前仍需真实浏览器、Agnes和同源Spark批次演示。
+最终冻结与答辩准备请阅读 `docs/final-project-acceptance-guide.md`，本轮验收结果见 `outputs/project-freeze-acceptance-report.md`。该准备阶段报告记录的是历史验收边界；后续正式发布结果以outputs/formal-release-result-report.md为准，视频以最新最终替换验收为准。实际答辩仍应确认本机服务、模型网络及演示账号可用。
 
 本机开发验收使用被Git忽略的 `configs/runtime.local.env`，只保存非敏感策略：
 
@@ -273,3 +407,5 @@ AI_ALLOWED_RESOURCE_IDS=*
 一键启动会检测Windows本机7890代理端口；也可在启动PowerShell进程中指定WINDOWS_PROXY_PORT。后端启动时从WSL默认路由动态取得Windows宿主机IPv4地址，验证端口可达后为该进程设置HTTP_PROXY/HTTPS_PROXY，并保留localhost、127.0.0.1及数据库宿主机直连。显式非loopback代理优先。APP_ENV=production不进行自动探测。
 
 只监听Windows127.0.0.1的代理不能通过WSL宿主机地址访问。检测失败会明确告警，并禁用继承的无效loopback代理，保留无代理启动；此时不能保证Agnes可访问。脚本不扩大监听范围、不修改防火墙、不保存代理凭据，也不修改现有Agnes Key本地配置方式。代理配置的可达性需在本机网络环境中验证。
+
+</details>
