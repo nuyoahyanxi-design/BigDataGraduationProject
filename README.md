@@ -41,6 +41,11 @@ Hadoop HDFS是项目中的教学课程主题；当前数据链路使用本地Par
 
 正式课程视频共 **5门课程、25章**，采用1280×720、16:9规格。最新节奏优化版本验收为 **视频25 / 缺失0 / 异常0 / 通过25**，详见[最终替换报告](outputs/course-teaching-rhythm-final-replacement-report.md)。新增旁白字幕作为独立SRT留在候选交付目录，当前播放器不自动加载这些字幕文件。
 
+## 系统架构
+
+- [系统架构说明与Mermaid图](docs/architecture.md)
+- [Draw.io可编辑架构图](docs/architecture.drawio)
+
 ## 大数据处理流程
 
 ```mermaid
