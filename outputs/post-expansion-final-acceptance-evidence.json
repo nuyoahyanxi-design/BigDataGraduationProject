@@ -1,0 +1,489 @@
+{
+  "latest": {
+    "spark-data-pipeline-latest.json": {
+      "batch_id": "20261013T052412Z_1fc73f17",
+      "status": "completed",
+      "quality_report": "/mnt/d/BigDataGraduationProject/outputs/spark-data-pipeline/20261013T052412Z_1fc73f17/quality-report.json",
+      "ods": "/mnt/d/BigDataGraduationProject/data/ods/batch_id=20261013T052412Z_1fc73f17",
+      "dwd": "/mnt/d/BigDataGraduationProject/data/dwd/batch_id=20261013T052412Z_1fc73f17"
+    },
+    "user-profile-latest.json": {
+      "status": "completed",
+      "batch_id": "20261013T052412Z_1fc73f17_p1_5f4a3dd7c998",
+      "source_batch_id": "20261013T052412Z_1fc73f17",
+      "generated_at": "2026-10-13T05:24:37.514",
+      "rows": 4,
+      "content_sha256": "b38c217104c661b91c8ebcc8099d2dfbbeeb2ea605e67bae0dd459f2fd6c48e0",
+      "files": [
+        {
+          "path": "part-00000-60e80ea6-a648-4605-8a09-e622dc7a7ae6-c000.snappy.parquet",
+          "bytes": 6630,
+          "sha256": "5b2d4f3aac34b0910cadbc286bb91c4ddc301536c1e543b89e9ae3da3d9e6e40"
+        }
+      ],
+      "parquet_round_trip": "passed",
+      "mysql_publication": "passed"
+    },
+    "recommendation-latest.json": {
+      "batch_id": "20261013T052412Z_1fc73f17_r1_587c243a0d860c24e7f0",
+      "source_batch_id": "20261013T052412Z_1fc73f17",
+      "profile_batch_id": "20261013T052412Z_1fc73f17_p1_5f4a3dd7c998",
+      "as_of_utc": "2026-10-13 05:24:11.782",
+      "generated_at": "2026-10-13T05:25:02.247",
+      "algorithms": {
+        "popular_v1": {
+          "version": "v1",
+          "score": "w_view*V + w_start*S + w_complete*C + w_favorite*F; weights in parameters"
+        },
+        "content_v1": {
+          "version": "hybrid-v2",
+          "score": "0.6*tag_cosine + 0.25*personal_behavior/max_personal_behavior + 0.15*heat/max_heat; no-history uses normalized popularity"
+        }
+      },
+      "parameters": {
+        "version": "v1",
+        "top_n": 5,
+        "weights": {
+          "view": 1,
+          "start": 2,
+          "complete": 3,
+          "favorite": 2
+        },
+        "business_timezone": "Asia/Shanghai",
+        "max_candidate_pairs": 2000000,
+        "max_output_rows": 50000
+      },
+      "code_sha256": "d7fd693304ea44d89a822de91609505fd469ef6f63bc02daa53d0cd7ecf02315",
+      "content_sha256": "12bd6e85e1a5c5f9c173d6c8b557bd5b9483846300ec25b0c9319a5dee568140",
+      "counts": {
+        "users": 4,
+        "published_resources": 6,
+        "candidate_pairs_before_completion_filter": 24,
+        "zero_result_users": 0,
+        "output_rows": 36
+      },
+      "status": "completed",
+      "files": [
+        {
+          "path": "part-00000-09d16b8c-09be-4902-b191-60cee805c3ea-c000.snappy.parquet",
+          "bytes": 3073,
+          "sha256": "61ff31970d8a67d6d17885b001a2aff1bd36bf11af5210c4b93588d26e6f609b"
+        }
+      ],
+      "parquet_round_trip": "passed",
+      "mysql_publication": "passed"
+    },
+    "dashboard-latest.json": {
+      "batch_id": "20261013T052412Z_1fc73f17_d1_6848cd21cf6f",
+      "source_batch_id": "20261013T052412Z_1fc73f17",
+      "generated_at": "2026-10-13T05:25:15.233+00:00",
+      "as_of_utc": "2026-10-13 05:24:11.782",
+      "source": "Spark ODS/DWD daily_metrics Parquet + paired MySQL analytics results",
+      "dataset_origin": "existing development acceptance fixtures; not real learner study",
+      "spark_version": "3.5.7",
+      "code_sha256": "a28501fd92da",
+      "recommendation_publication": {
+        "batch_id": "20261013T052412Z_1fc73f17_r1_587c243a0d860c24e7f0",
+        "profile_batch_id": "20261013T052412Z_1fc73f17_p1_5f4a3dd7c998",
+        "generated_at": "2026-10-13T05:25:02.247",
+        "as_of_utc": "2026-10-13 05:24:11.782"
+      },
+      "metrics": {
+        "users": {
+          "total": 6,
+          "active_learners": 4,
+          "admins": 2
+        },
+        "resources": {
+          "total": 13,
+          "published": 12
+        },
+        "resource_categories": [
+          {
+            "category": "data-engineering",
+            "count": 10
+          },
+          {
+            "category": "databases",
+            "count": 1
+          },
+          {
+            "category": "machine-learning",
+            "count": 1
+          }
+        ],
+        "behavior": {
+          "total_effective_events": 119,
+          "window_events": 119,
+          "daily": [
+            {
+              "day": "2026-09-14",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-15",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-16",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-17",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-18",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-19",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-20",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-21",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-22",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-23",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-24",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-25",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-26",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-27",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-28",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-29",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-09-30",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-01",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-02",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-03",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-04",
+              "resource_view": 1,
+              "learning_start": 1,
+              "learning_complete": 1,
+              "favorite_add": 1,
+              "favorite_remove": 1
+            },
+            {
+              "day": "2026-10-05",
+              "resource_view": 55,
+              "learning_start": 9,
+              "learning_complete": 5,
+              "favorite_add": 3,
+              "favorite_remove": 1
+            },
+            {
+              "day": "2026-10-06",
+              "resource_view": 5,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-07",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-08",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-09",
+              "resource_view": 2,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 1,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-10",
+              "resource_view": 31,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-11",
+              "resource_view": 1,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-12",
+              "resource_view": 0,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            },
+            {
+              "day": "2026-10-13",
+              "resource_view": 1,
+              "learning_start": 0,
+              "learning_complete": 0,
+              "favorite_add": 0,
+              "favorite_remove": 0
+            }
+          ],
+          "timezone": "Asia/Shanghai",
+          "window_days": 30
+        },
+        "learning": {
+          "started_pairs": 10,
+          "in_progress": 4,
+          "completed": 6,
+          "completion_rate": 0.6
+        }
+      },
+      "quality": {
+        "input_count": 123,
+        "filtered_count": 1,
+        "output_count": 122
+      },
+      "status": "completed",
+      "content_sha256": "dfd86d8e8cd90114b4634e984e1b7faed9299396917dac5da56a984135faf311",
+      "files": [
+        {
+          "path": "part-00000-985afc79-3abb-4775-b26c-dae8a1d2b8ee-c000.snappy.parquet",
+          "bytes": 2288,
+          "sha256": "1d0ae1f51e8b8daf82cfd271ab29a24335cba8ccfc32f8e620e7c0d1afda301f"
+        }
+      ],
+      "parquet_round_trip": "passed"
+    }
+  },
+  "ods_rows": {
+    "users": 6,
+    "resources": 13,
+    "learning_progress": 11,
+    "favorites": 3,
+    "learning_events": 123
+  },
+  "dwd_rows": {
+    "learning_events": 122,
+    "learning_events_rejected": 1
+  },
+  "quality": {
+    "input_count": 123,
+    "filtered_count": 1,
+    "output_count": 122,
+    "primary_reasons": {
+      "no_state_change": 1
+    },
+    "overlapping_reason_hits": {
+      "no_state_change": 1
+    },
+    "invalid_count": 0,
+    "duplicate_count": 0,
+    "no_state_change_count": 1,
+    "conservation": "passed",
+    "batch_id": "20261013T052412Z_1fc73f17",
+    "snapshot_at": "2026-10-13 05:24:11.782",
+    "source_system": "mysql",
+    "source_database": "bigdata_graduation",
+    "source_version": "8.0.45",
+    "spark_version": "3.5.7",
+    "ods_counts": {
+      "users": 6,
+      "resources": 13,
+      "learning_progress": 11,
+      "favorites": 3,
+      "learning_events": 123
+    },
+    "schema_timezone": "UTC",
+    "dataset_origin": "existing development acceptance fixtures; not real learner study",
+    "sql_event_statistics": [
+      {
+        "event_type": "favorite_add",
+        "rows": 5
+      },
+      {
+        "event_type": "favorite_remove",
+        "rows": 2
+      },
+      {
+        "event_type": "learning_complete",
+        "rows": 6
+      },
+      {
+        "event_type": "learning_start",
+        "rows": 11
+      },
+      {
+        "event_type": "resource_view",
+        "rows": 98
+      }
+    ],
+    "spark_sql": "passed",
+    "parquet_round_trip": "passed",
+    "file_checksums": "passed"
+  },
+  "checked_files": [
+    "data/ods/batch_id=20261013T052412Z_1fc73f17/users/part-00000-f23d237b-9aad-4102-810a-e0a842b9ea78-c000.snappy.parquet",
+    "data/ods/batch_id=20261013T052412Z_1fc73f17/resources/part-00000-c91e7936-e9a4-496f-b69e-1ec3e0359f31-c000.snappy.parquet",
+    "data/ods/batch_id=20261013T052412Z_1fc73f17/learning_progress/part-00000-ea3d5de8-95e0-4fc4-988d-a3f733e1e86e-c000.snappy.parquet",
+    "data/ods/batch_id=20261013T052412Z_1fc73f17/favorites/part-00000-41aae80b-6bcb-49f0-ab18-f3848e60c02d-c000.snappy.parquet",
+    "data/ods/batch_id=20261013T052412Z_1fc73f17/learning_events/part-00000-63e76167-a5f6-441d-826d-6b9b57a138e0-c000.snappy.parquet",
+    "data/dwd/batch_id=20261013T052412Z_1fc73f17/learning_events/part-00000-6580482b-1d07-4520-a317-fd0551b6c732-c000.snappy.parquet",
+    "data/dwd/batch_id=20261013T052412Z_1fc73f17/learning_events_rejected/part-00000-f5a0db0a-496e-4c87-9fe5-2db9f0582710-c000.snappy.parquet",
+    "data/ads/user_profiles/batch_id=20261013T052412Z_1fc73f17_p1_5f4a3dd7c998/profiles/part-00000-60e80ea6-a648-4605-8a09-e622dc7a7ae6-c000.snappy.parquet",
+    "data/ads/recommendations/batch_id=20261013T052412Z_1fc73f17_r1_587c243a0d860c24e7f0/results/part-00000-09d16b8c-09be-4902-b191-60cee805c3ea-c000.snappy.parquet",
+    "data/ads/daily_metrics/batch_id=20261013T052412Z_1fc73f17_d1_6848cd21cf6f/daily_metrics/part-00000-985afc79-3abb-4775-b26c-dae8a1d2b8ee-c000.snappy.parquet"
+  ],
+  "database_counts": {
+    "ai_course_contexts": 25,
+    "ai_qa_records": 50,
+    "chapter_events": 259,
+    "chapter_progress": 21,
+    "course_chapters": 26,
+    "favorites": 3,
+    "learning_events": 123,
+    "learning_progress": 11,
+    "recommendation_results": 472,
+    "resources": 13,
+    "user_profiles": 38,
+    "users": 6
+  },
+  "published_rows": {
+    "user_profiles": 4,
+    "recommendation_results": 36
+  },
+  "latest_chapter_event": [
+    969,
+    "chapter_view"
+  ],
+  "serving_batch": "20261013T052412Z_1fc73f17_r1_587c243a0d860c24e7f0",
+  "serving_items": 3
+}
