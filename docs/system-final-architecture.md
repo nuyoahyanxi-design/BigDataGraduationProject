@@ -1,8 +1,6 @@
 # 系统最终总体架构
 
-> 冻结更新（2026-10-05）：本文件下方保留早期最终验收快照。当前功能、12表数据模型、课程AI、hybrid-v2混合评分及章节事件进入Spark的准确边界，以 [final-project-acceptance-guide.md](final-project-acceptance-guide.md) 为准；下方七表及纯余弦描述不代表当前版本。当前阶段结果见 outputs/project-freeze-acceptance-report.md。
-
-日期：2026-10-05。此文以当前代码、迁移和运行产物为依据。本阶段只做验收与交付整理，不新增业务功能。最终运行结果和限制统一记录于 outputs/final-system-acceptance-report.md。
+初稿2026-10-05；更新2026-10-13，以b8474f2实现与既有验收记录为依据。当前状态及数据见[统一口径](defense-current-state.md)，本轮只修订文档。
 
 ## 总体设计
 
@@ -11,7 +9,7 @@
 ```mermaid
 flowchart LR
   V[Vue3 学习者与管理员页面] -->|JWT / REST| A[FastAPI 在线服务]
-  A --> M[(MySQL8 七张表)]
+  A --> M[(MySQL8 十二张表)]
   M -->|一致性分析投影| O[ODS Parquet 快照]
   O --> C[Spark 清洗与质量检查]
   C --> D[DWD 有效学习事件]
@@ -37,13 +35,13 @@ flowchart LR
 | 学习操作 | 浏览、开始、完成、收藏、取消收藏 | learning_progress、favorites、learning_events |
 | Spark数据链路 | MySQL一致性快照、有效事实清洗、质量报告 | ODS/DWD Parquet及manifest |
 | 用户画像 | 兴趣、活跃、学习偏好；无能力画像 | ADS Parquet、user_profiles |
-| 推荐 | popular_v1、content_v1余弦相似及冷启动回退 | ADS、recommendation_results |
+| 推荐 | popular_v1、content_v1融合标签相似度、个人行为与热度及冷启动回退 | ADS、recommendation_results |
 | 推荐实验 | 时间划分、冻结、Recall@10、NDCG@10、Coverage | 独立实验目录，不替换线上发布 |
 | 推荐展示 | 当前用户推荐与配套画像摘要 | /api/recommendations/me、/recommendations |
 | 数据看板 | 已冻结行为/资源/完成/推荐统计与来源 | /api/dashboard/overview、/dashboard |
 | 管理后台 | 用户只读、资源维护、最近发布批次只读 | /api/admin/users、/api/admin/batches、/admin |
 
-数据库实际七表：users、resources、learning_progress、favorites、learning_events、user_profiles、recommendation_results。迁移顺序001→002→003。不创建规划文档中全部23表；没有daily_metrics数据库表、analysis_batches表或自动迁移服务。daily_metrics是本机Parquet统计产物。
+数据库实际12表：users、resources、learning_progress、favorites、learning_events、user_profiles、recommendation_results、course_chapters、chapter_progress、chapter_events、ai_qa_records、ai_course_contexts。迁移顺序001—007。不创建规划文档中全部23表；没有daily_metrics数据库表、analysis_batches表或自动迁移服务。daily_metrics是本机Parquet统计产物。
 
 ## 在线数据流和权限
 
@@ -57,7 +55,7 @@ pipeline→user_profiles→recommendations→dashboard_metrics由人工顺序运
 
 ODS保留来源、批次、快照时间；DWD过滤空引用、非法类型、重复UUID、时间异常与无效状态回执。画像与推荐严格定位同源输入，生成带批次、代码摘要和时间的结果。发布包含Parquet读回、结果校验与MySQL事务；成功才替换latest指针，失败保留此前成功版本。
 
-热门推荐按浏览/开始/完成/收藏加权；内容推荐使用画像兴趣向量与资源标签向量余弦。新用户显式兴趣回退、无兴趣热门回退；过滤下架、完成和重复资源，查询时再检查在线状态。公式与参数以 docs/recommendation-system-design.md、configs/recommendation.json 为准，不在最终验收新增算法。
+热门推荐按浏览/开始/完成/收藏加权；内容推荐按60%标签余弦、25%归一化个人行为、15%归一化热度融合；无有效历史行为采用热度回退；过滤下架、完成和重复资源，查询时再检查在线状态。公式与参数以 spark/utils/recommendations.py 与 spark/configs/recommendation.json 为准，早期 recommendation-system-design.md 只作为历史算法设计，不在最终验收新增算法。
 
 看板读取Spark统计JSON及固定配套MySQL批次；资源管理在线修改不触发离线重算。管理后台批次只读最近四阶段元数据；completed为发布记录声明，不代表查询时重新校验全部Parquet。
 

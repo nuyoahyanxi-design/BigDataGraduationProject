@@ -1,41 +1,15 @@
-# 项目概览与MVP
+# 项目概览与当前实现
 
-日期：2026-10-04。当前仅工程初始化，尚未实现业务。
+更新日期：2026-10-13。题目：基于Spark的学习行为分析与个性化资源推荐系统设计与实现。代码基线b8474f2，当前数据与技术栈统一见[答辩当前状态](defense-current-state.md)。早期MVP规划不作为未完成业务或已实现额外表的依据。
 
-## 目标与范围
+已实现学生登录、兴趣、资源检索/详情、课程章节/教学正文/真实视频、学习行为和手动进度；已实现管理员用户只读、课程/资源维护、批次和统计展示；已实现通用/课程AI适配与历史。接口存在与本轮验收通过分开：10月13日覆盖学生/管理只读展示、单章视频与一次通用AI，不包括所有管理写操作或所有AI模式。
 
-题目：基于Spark的学习行为分析与个性化资源推荐系统设计与实现。
+Vue3→FastAPI→MySQL；人工顺序执行pipeline→user_profiles→recommendations→dashboard_metrics。结果经过校验写入Parquet/结果表，成功批次发布latest；网页刷新只读取结果。不存在自动任务提交API、定时调度或分布式调度验收。
 
-建立学习行为到画像、推荐、展示与离线实验的可追溯闭环，研究显式兴趣与行为融合及时间衰减的作用，不预设推荐一定优于热门基线。
+实际12表，迁移001—007：users、resources、learning_progress、favorites、learning_events、user_profiles、recommendation_results、course_chapters、chapter_progress、chapter_events、ai_qa_records、ai_course_contexts。daily_metrics是文件，未实现analysis_batches或serving_versions表。
 
-MVP核心模块：用户与权限、资源与学习操作、行为采集、Spark数据处理、兴趣/行为画像、热门/内容推荐、分析与任务后台、离线实验与交付。
+真实物理层ODS/DWD/ADS，DWS任务内聚合；Spark3.5.7 local[2]。popular_v1热度基线；content_v1融合60%标签余弦、25%个人行为、15%热度，无历史热度回退。最新批次123→122、画像4、推荐36，都是开发验收样本；累计结果和业务实时快照见统一口径。
 
-必做：两角色权限、显式兴趣、资源列表/详情/搜索/筛选、资源发布下架、开始/完成/收藏、可靠事件、Spark清洗聚合及Parquet、画像证据、冷启动、候选过滤与理由、趋势和质量看板、批次失败保留旧结果、公平可复现实验与答辩材料。
+没有ALS、向量检索、HDFS集群、可信观看时长、自动练习评分、大模型训练、实时推荐重算、线上A/B或真实学习收益结论。离线实验工具及明确模拟数据不等于真实学生效果研究。
 
-事件首版为浏览、开始、完成、收藏和取消收藏。浏览由客户端上报并校验，其他事件随业务事务生成；不实现心跳时长。无测验证据时不使用能力画像名称。
-
-延期：AI问答、ALS、测验、时长、曝光点击归因、定时调度、容器部署与Standalone展示。AI已由原规划的必做调整为延期。
-
-删除：评分评价、问答分析、支付、直播、转码、复杂章节、多租户、微服务、实时计算、大模型训练及正式在线A/B实验。
-
-## 架构
-
-Vue → FastAPI → MySQL；独立执行器抽取冻结快照 → Spark清洗/特征/画像/推荐/指标 → 校验与事务切换发布指针 → FastAPI查询。
-
-初期单机local。API只提交固定任务并返回批次编号，不在请求中同步执行Spark，不接受任意脚本。Spark真实承担清洗、聚合、热度、画像特征和内容推荐计算。
-
-## 数据库第一版（仅设计，未建表）
-
-先建5表：users、resources、learning_progress、favorites、learning_events。
-
-Spark阶段再增加5表：analysis_batches、user_profiles、recommendation_results、daily_metrics、serving_versions，共10表。标签和兴趣使用受控字典及JSON；任务合并到批次，实验保存为版本化文件。
-
-状态变化与事件同事务；event_uuid唯一；结果按批次保存。历史收藏从事件重构，资源标签与兴趣冻结为快照，不使用当前状态还原过去。
-
-## 数据与验收
-
-平台数据验证闭环，公开数据用于经审查的实验，模拟数据用于异常与性能。OULAD为候选，许可和字段未审查通过前不视为已落实。
-
-关键证据：事件操作一致、Spark运行信息、质量报告、画像人工核算、推荐过滤、批次失败保留旧结果、实验配置及真实体验反馈。
-
-原规划：C:\Users\Nuyoah\Documents\Codex\2026-10-04\new-chat\outputs\spark-learning-graduation-project-plan.md。实施以当前确认的收敛MVP为准；学校集群与论文要求仍须核对任务书。
+5门正式课程25章/25视频，另1隐藏课1章；10月13日实际播放证据不覆盖25章全片。文档、PPT大纲和论文草稿不等于学校格式成品。启动和答辩顺序见[当前启动说明](defense-startup-guide.md)。

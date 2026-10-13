@@ -1,5 +1,7 @@
 # Windows一键启动设计
 
+> 历史资料说明（2026-10-13补注）：下文设计、数量、失败与未验收结论属于原记录日期，不代表当前版本；保留原始证据，不将当时未执行的测试改写为通过。 当前技术栈、视频播放证据和各数据口径统一见[答辩当前状态说明](defense-current-state.md)；本次仅修订文档，没有重新验收或运行Spark。
+
 仅新增启动工具和文档，不改业务、数据库、API或Spark。根目录bat通过Windows PowerShell调度WSL Ubuntu-22.04，在独立可见终端执行既有安全后端启动与Vite。复用现有环境激活脚本，不创建新虚拟环境、不安装依赖。
 
 后端使用PYTHONPATH=backend python outputs/start-ai-real-model-secure.py，前端使用npm run dev并显式设置本机代理目标。保留Key环境变量优先及getpass隐藏输入；不记录服务输出，不写Key文件。

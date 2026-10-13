@@ -1,12 +1,14 @@
 # 开发环境说明
 
+> 历史资料说明（2026-10-13补注）：下文设计、数量、失败与未验收结论属于原记录日期，不代表当前版本；保留原始证据，不将当时未执行的测试改写为通过。 当前技术栈、视频播放证据和各数据口径统一见[答辩当前状态说明](defense-current-state.md)；本次仅修订文档，没有重新验收或运行Spark。
+
 日期：2026-10-04。环境验收与业务验收分开记录。
 
 ## 本轮检查
 
 | 项目 | 实测结果 |
 |---|---|
-| Ubuntu WSL2 | Ubuntu-22.04开发发行版可正常执行命令 |
+| Ubuntu WSL2 | 当时名称Ubuntu-22.04；恢复后的当前发行版为Ubuntu-22.04-Recovered（见统一口径） |
 | Java/javac | 17.0.20.1，Linux JDK |
 | JAVA_HOME | /usr/lib/jvm/java-17-openjdk-amd64 |
 | Python | 3.11.17，独立bigdata-graduation-env |
