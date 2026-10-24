@@ -173,3 +173,18 @@ blob-report/
 !/outputs/unified-progress-acceptance-report.md
 !/outputs/formal-course-scope-acceptance-report.md
 !/outputs/git-submit-organization-acceptance-report.md
+
+# Accepted authentication, visual, public-data and demonstration reports.
+!/outputs/login-experience-acceptance-report.md
+!/outputs/course-learning-visual-refresh-acceptance-report.md
+!/outputs/dashboard-first-screen-acceptance-report.md
+!/outputs/defense-presentation-copy-acceptance-report.md
+!/outputs/platform-decoration-acceptance-report.md
+!/outputs/platform-visual-refresh-acceptance-report.md
+!/outputs/resource-cover-acceptance-report.md
+!/outputs/resource-detail-visual-acceptance-report.md
+!/outputs/public-education-data-acceptance-report.md
+!/outputs/oulad-analysis-acceptance-report.md
+!/outputs/platform-activity-session-acceptance-report.md
+!/outputs/platform-spark-refresh-acceptance-report.md
+!/outputs/remaining-changes-organization-acceptance-report.md
