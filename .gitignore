@@ -188,3 +188,8 @@ blob-report/
 !/outputs/platform-activity-session-acceptance-report.md
 !/outputs/platform-spark-refresh-acceptance-report.md
 !/outputs/remaining-changes-organization-acceptance-report.md
+
+# Accepted defense PPT only; keep all other production artifacts ignored.
+!/outputs/defense-ppt-v1.1/
+/outputs/defense-ppt-v1.1/*
+!/outputs/defense-ppt-v1.1/大数据智能学习平台_答辩PPT_v1.1_交付版.pptx
