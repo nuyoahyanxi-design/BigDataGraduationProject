@@ -4,11 +4,20 @@
 
 本项目的研究主题为“基于 Spark 的学习行为分析与个性化资源推荐系统设计与实现”。采用 Vue 3、FastAPI、MySQL 与 PySpark，构建从在线学习、行为采集到离线分析、推荐发布及可视化展示的完整链路。
 
-## 答辩当前口径（2026-10-13）
+## 答辩当前口径（2026-10-24）
 
-代码基线b8474f2；最新Spark源批次`20261013T052412Z_1fc73f17`，ODS学习事件123→DWD有效122/过滤1，画像4行、推荐36行、趋势30自然日。发布后累计画像38/推荐472；后续演示后的业务事件125条与ODS123条属于不同时间快照。
+已验收且已推送的代码基线为 `c0e2ca6f390c443f4e61b9512a5cfbba81806136`；本次文档同步尚未提交，未创建新的冻结标签。最新平台源批次为 `20261024T054843Z_de437452`，截止北京时间2026-10-24 13:48:44.421（UTC 05:48:44.421）。
 
-视频已真实播放，学生、管理员统计及一次AI问答展示通过；不等于全部视频/管理写操作/AI稳定性或真实推荐效果通过。旧截图与报告属于标明日期的历史证据。[统一状态与技术栈](docs/defense-current-state.md)、[当前启动与演示说明](docs/defense-startup-guide.md)、[答辩演示验收](outputs/defense-demo-acceptance-20261013/defense-demo-acceptance-report.md)。
+- MySQL当前13张表，迁移文件001—008；ODS对8张表做分析字段快照，不是全库备份。
+- 课程级事件清洗141输入、1过滤、140输出；按正式课程及有效学习者范围统计的课程行为为99次，两者不能混用。
+- 正式课程5门、25章；排除验收资源1—6、隐藏资源406、下架资源2253，历史记录保留。
+- 当前批次画像4份；content_v1和popular_v1各20条推荐，合计40条。student_demo当前每种算法均展示5门课程。
+- 正式课程已开始5条用户课程关系、完成0条，完成率0%；章节浏览108次、播放156次、完成章节2个。章节完成与整课完成、播放次数与观看时长分别解释。
+- 双端首页、学生目录与画像推荐、管理员平台及公开数据看板已完成真实页面只读复验。认证隔离测试12项通过；未把历史前端测试当作本次新测试。
+- 25个正式视频与Git HEAD及已验收保护基线摘要一致；既有视频验收25通过、缺失0、异常0。本次未重新全片解码或人工播放。
+- OULAD为独立外部历史教育数据，专用批次 `20261023T090521Z_d00d214a`，不计入平台账号、课程完成率或推荐效果。
+
+[统一状态与统计定义](docs/defense-current-state.md)、[当前系统架构](docs/architecture.md)、[正式课程范围验收](outputs/formal-course-scope-acceptance-report.md)。以下旧截图和阶段报告保留原日期，不代表当前界面或新效果实验；AI一次历史调用成功不代表当前网络与模型持续可用。
 
 ## 项目简介
 
@@ -36,12 +45,13 @@ Hadoop HDFS是项目中的教学课程主题；当前数据链路使用本地Par
 
 | 模块 | 已实现能力 |
 |---|---|
-| 用户模块 | 注册、登录、JWT认证、兴趣标签；学习者与管理员权限隔离 |
+| 用户模块 | 注册、登录、图形验证码、记住登录状态、恢复码找回、JWT认证、兴趣标签及角色权限 |
 | 课程与资源 | 搜索与筛选、资源详情、章节目录、Markdown教学正文、目标/示例代码/练习、视频播放、手动完成与章节进度 |
-| 学习行为 | 浏览、开始、完成、收藏/取消收藏；事件校验、幂等与事务处理 |
-| 数据处理 | MySQL五表分析投影快照、行为清洗与质量检查、独立批次及来源追踪 |
+| 学习行为 | 课程浏览、开始、完成、收藏/取消收藏，及独立章节浏览、视频播放、章节完成；事件校验、幂等与事务处理 |
+| 数据处理 | MySQL八表分析投影快照、行为清洗与质量检查、独立批次及来源追踪 |
 | 用户画像 | 标签兴趣、学习行为统计及批次结果；在推荐页面配套展示 |
 | 个性化推荐 | 热度与融合内容推荐、推荐理由、已完成资源过滤、时间划分离线实验 |
+| 公开数据 | 独立OULAD来源核查、Spark local分析与管理员看板；不混入平台用户统计 |
 | 管理与看板 | 用户只读查看、资源维护、课程/章节编辑与发布、行为统计图表和批次来源展示；管理写操作不属于本次演示验收 |
 | AI学习助手 | 通用问答与课程问答；课程资料外发确认、资源许可、额度、引用与历史；不自动改变学习进度 |
 
@@ -56,9 +66,9 @@ Hadoop HDFS是项目中的教学课程主题；当前数据链路使用本地Par
 
 ```mermaid
 flowchart TD
-    A[MySQL：用户、资源、进度、收藏、学习事件] --> B[ODS：一致性分析快照 / Parquet]
-    B --> C[DWD：清洗、有效行为与质量检查]
-    C --> D[画像特征与行为聚合计算]
+    A[MySQL八表：用户、资源、课程与章节进度、事件、收藏] --> B[ODS：一致性分析快照 / Parquet]
+    B --> C[DWD：课程及章节事件清洗、派生统一进度]
+    C --> D[正式课程筛选与任务内聚合：DWS逻辑职责]
     D --> E[ADS：画像、推荐及看板结果 / Parquet]
     E --> F[结果校验与批次发布]
     F --> G[MySQL结果表 / latest批次指针]
@@ -66,7 +76,7 @@ flowchart TD
     H --> I[Vue学习者页面 / 管理看板]
 ```
 
-实际落盘层为 **ODS → DWD → ADS**；中间聚合在任务内完成，没有独立DWS目录。抽取针对分析所需字段，不是数据库完整备份。各任务校验成功后发布，保留历史批次；网页刷新不触发Spark重新计算。课程章节事件与主分析五表之间存在桥接规则，不把全部章节事件直接等同于Spark输入。
+实际落盘层为 **ODS → DWD → ADS**；中间聚合在任务内完成，没有独立DWS目录。抽取针对分析所需字段，不是数据库完整备份。各任务校验成功后发布，保留历史批次；网页刷新不触发Spark重新计算。章节事件已独立进入ODS/DWD；首次学习和整课完成仍有课程级桥接事件，两类次数分开展示，推荐章节信号按日去重并设置上限，避免把事件数量或播放位置误认为观看时长。
 
 ## 项目目录结构
 
@@ -76,13 +86,13 @@ BigDataGraduationProject/
 ├── frontend/                # Vue页面、组件、路由、测试
 │   └── public/videos/       # 五门课程的25个正式MP4
 ├── spark/                   # jobs、utils、configs、tests、README
-├── database/                # migrations/001–007、种子与数据库说明
+├── database/                # migrations/001–008、种子与数据库说明
 ├── configs/                 # 安全默认模板；本机私有配置不提交
 ├── scripts/                 # 启动、策略配置及教学资料工具
 ├── docs/                    # 架构、阶段设计、部署与答辩指南
 ├── outputs/                 # 最终报告/证据白名单；生成产物忽略
 ├── screenshots/             # GitHub展示用真实系统截图
-├── tests/                   # 根测试预留；主要测试在各模块下
+├── tests/                   # 章节分析、进度和正式范围隔离回归
 ├── data/                    # 本机分层数据，忽略Git
 ├── environments/            # 本机环境与安全加载工具，部分忽略
 ├── work/                    # 临时产物，忽略Git
@@ -109,7 +119,7 @@ BigDataGraduationProject/
 
 ## 系统截图
 
-以下图片均于2026-10-11从本机真实运行页面采集，未生成虚构界面。学习者页面使用student_demo，数据看板使用admin_demo。画像位于推荐页面中；数据分析展示已发布离线批次，不能视为实时重算或真实用户效果研究。
+以下图片均于2026-10-11从本机真实运行页面采集，属于历史界面展示，尚未替换为10月24日美化后的截图；未生成虚构界面。学习者页面使用student_demo，数据看板使用admin_demo。画像位于推荐页面中；数据分析展示已发布离线批次，不能视为实时重算或真实用户效果研究。
 
 ### 登录页面
 
@@ -161,6 +171,20 @@ BigDataGraduationProject/
 
 ---
 
+## 历史状态说明
+
+<details>
+<summary>2026-10-13旧批次与演示证据（历史，不作当前口径）</summary>
+
+### 2026-10-13阶段记录
+
+代码基线b8474f2；最新Spark源批次`20261013T052412Z_1fc73f17`，ODS学习事件123→DWD有效122/过滤1，画像4行、推荐36行、趋势30自然日。发布后累计画像38/推荐472；后续演示后的业务事件125条与ODS123条属于不同时间快照。
+
+视频已真实播放，学生、管理员统计及一次AI问答展示通过；不等于全部视频/管理写操作/AI稳定性或真实推荐效果通过。旧截图与报告属于标明日期的历史证据。[统一状态与技术栈](docs/defense-current-state.md)、[当前启动与演示说明](docs/defense-startup-guide.md)、[答辩演示验收](outputs/defense-demo-acceptance-20261013/defense-demo-acceptance-report.md)。
+
+
+</details>
+
 ## 部署与维护参考
 
 以下保留既有README中的详细部署与开发说明，版本性结论按上方最新验收入口核对。
@@ -182,7 +206,7 @@ BigDataGraduationProject/
 | frontend | Vue页面、路由、认证状态、API封装、单元与集成测试 |
 | backend | FastAPI接口、事务服务、ORM、认证及后端测试 |
 | spark | jobs任务、utils计算工具、configs参数、tests及lib JDBC驱动 |
-| database | migrations/001、002、003与数据库说明 |
+| database | migrations/001—008与数据库说明 |
 | data | 分层数据，不纳入Git |
 | configs | 根配置预留；实际Spark参数位于spark/configs |
 | tests | 根测试预留；实际测试位于backend/tests、frontend/tests、spark/tests |
@@ -235,7 +259,7 @@ Windows根目录为D:\BigDataGraduationProject。已有快捷方式仍指向code
 1. Windows启用WSL2并安装Ubuntu22.04；MySQL8.0运行在Windows。准备项目目录D:\BigDataGraduationProject，在WSL中对应/mnt/d/BigDataGraduationProject。
 2. Ubuntu安装git、curl、wget和OpenJDK17；JAVA_HOME使用/usr/lib/jvm/java-17-openjdk-amd64。安装Python3.11及venv组件，不替换系统Python；新机器建立独立bigdata-graduation-env。当前本机虚拟环境为/home/nuyoah/.venvs/bigdata-graduation-env，必须复用。
 3. 安装Node22.22.2与npm10.9.7，保持Node22版本线；准备VS Code及Remote WSL、Python、Vue扩展。
-4. 将MySQL设置为utf8mb4，准备bigdata_graduation数据库及专用账号；新空库按database/README.md及对应模块指南依次恢复001–007迁移。已有数据库先备份检查，禁止重复迁移或关闭外键强行覆盖。
+4. 将MySQL设置为utf8mb4，准备bigdata_graduation数据库及专用账号；新空库按database/README.md及对应模块指南依次恢复001—008迁移。已有数据库先备份检查，禁止重复迁移或关闭外键强行覆盖。008对应auth_recovery_codes，工具为backend/tools/apply_auth_recovery_migration.py；只在明确授权的部署中显式执行，应用启动不会自动迁移。原数据库说明可能分阶段编写，不应漏掉008。
 5. 在已激活Python环境恢复依赖：`python -m pip install -r backend/requirements-dev.txt`，`python -m pip install pyspark==3.5.7`；运行`python -m pip check`。前端在frontend执行`npm ci`，使用已有lockfile。
 6. 恢复Spark JDBC驱动到spark/lib/mysql-connector-j-8.0.33.jar，官方Maven坐标com.mysql:mysql-connector-j:8.0.33；SHA256为e2a3b2fc726a1ac64e998585db86b30fa8bf3f706195b78bb77c5f99bf877bd9。该JAR被Git忽略，不要误判为已随源码交付。
 7. 安全设置MYSQL_HOST、MYSQL_PORT、MYSQL_DATABASE、MYSQL_USER、MYSQL_PASSWORD、MYSQL_CHARSET=utf8mb4及JWT_SECRET。密码仅通过安全存储或私密进程环境注入，禁止放在命令参数、报告、源码和VITE_变量中。本机activate-bigdata.sh私密加载数据库配置，backend/run.py加载Windows JWT安全凭据；两者绑定当前Windows环境，移机不能直接假定可用。
@@ -313,7 +337,7 @@ npm run build
 
 ## Windows一键启动（含AI安全输入）
 
-在当前Windows电脑双击根目录 **start-project.bat**，无需管理员权限。默认使用WSL发行版Ubuntu-22.04，MySQL80须已启动，前端依赖须已安装。
+在当前Windows电脑双击根目录 **start-project.bat**，无需管理员权限。当前本机使用WSL发行版Ubuntu-22.04-Recovered，移机先核对已安装发行版与启动器配置；MySQL80须已启动，前端依赖须已安装。
 
 1. 启动器检查MySQL、项目位置和端口。已经正常运行的后端及Vite会直接复用；未启动时分别打开“Spark Learning - backend”和“Spark Learning - frontend”终端。
 2. 后端调用现有outputs/start-ai-real-model-secure.py，保留环境变量优先、缺失时隐藏输入的安全机制。按窗口提示输入Agnes model（agnes-3.0-flash）及API Key，自行安全保管，**不要写入bat、源码、文档或Git**。首次配置保存到被Git忽略的.env.local，后续自动加载。另一个WSL终端临时export的配置不会自动传入新窗口；Windows启动器继承其启动进程的系统环境变量。
