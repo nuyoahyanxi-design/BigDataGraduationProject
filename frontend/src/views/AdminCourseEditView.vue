@@ -29,7 +29,7 @@ watch(()=>[route.name,route.params.id],load,{immediate:true})
 </script>
 <template>
   <section class="admin-editor-page"><ElButton :disabled="state.busy" @click="router.push({name:'admin-courses'})">返回课程列表</ElButton>
-    <header class="page-header"><p>课程管理 / {{creating?'创建课程':'编辑课程'}}</p><h1>{{creating?'创建课程':'编辑课程信息'}}</h1><p>独立维护课程信息，原资源类型和教学内容不会因进入此页而改变。</p></header>
+    <header class="page-header"><p>课程管理 / {{creating?'创建课程':'编辑课程'}}</p><h1>{{creating?'创建课程':'编辑课程信息'}}</h1></header>
     <ElAlert v-if="state.error" :title="state.error" type="error" :closable="false" role="alert" />
     <ElAlert v-if="state.notice" :title="state.notice" type="success" :closable="false" role="status" />
     <p v-if="state.busy && !ready" role="status">正在读取课程信息…</p><ElButton v-if="!ready && !state.busy" @click="load">重新加载课程</ElButton>

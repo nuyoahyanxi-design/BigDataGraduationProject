@@ -40,7 +40,7 @@ function closeEditor(done:()=>void){if(!busy.value)done()}
 onMounted(()=>{void loadUsers();void loadResources();void loadBatches()})
 </script>
 <template>
-  <section><h1>管理员后台</h1><RouterLink to="/admin/courses">进入课程与章节管理</RouterLink><p>用户只读查看 · 资源维护 · Spark最近发布批次。资源保存不自动触发离线重算。</p>
+  <section><h1>管理员后台</h1><RouterLink to="/admin/courses">进入课程与章节管理</RouterLink><p>用户查看、资源维护与数据发布记录。资源修改后，分析结果将在后续批次更新。</p>
     <ElAlert v-if="notice" :title="notice" type="success" :closable="false" role="status" />
     <ElTabs v-model="tab">
       <ElTabPane label="资源管理" name="resources">

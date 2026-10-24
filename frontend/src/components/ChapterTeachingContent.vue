@@ -25,7 +25,7 @@ const exercises = computed(() => Array.isArray(props.chapter.exercises) ? props.
     <section aria-label="章节练习"><h3>章节练习</h3>
       <ol v-if="exercises.length"><li v-for="(exercise,index) in exercises" :key="index">{{exercise}}</li></ol>
       <p v-else>请回顾本章节知识点并整理学习笔记。</p>
-      <p class="exercise-note">练习用于自主学习，请在自己的开发环境完成；本页面不会执行代码或自动评分。</p>
+      <p class="exercise-note">请在本地环境完成练习；平台不执行代码或自动评分。</p>
     </section>
   </div>
 </template>

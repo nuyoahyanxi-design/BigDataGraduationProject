@@ -9,7 +9,7 @@ function search(){state.page=1;void controller.load()}
 onMounted(()=>void controller.load())
 </script>
 <template>
-  <section class="admin-courses"><header><RouterLink to="/admin">返回管理员后台</RouterLink><h1>课程管理</h1><p>创建课程、维护章节和发布课程。隐藏课程不会删除已有学习记录，也不会自动触发Spark重算。</p></header>
+  <section class="admin-courses"><header><RouterLink to="/admin">返回管理员后台</RouterLink><h1>课程管理</h1><p>维护课程、章节与发布状态。隐藏课程后，已有学习记录仍会保留。</p></header>
     <ElAlert v-if="state.error" :title="state.error" type="error" :closable="false" role="alert" />
     <ElAlert v-if="state.notice" :title="state.notice" type="success" :closable="false" role="status" />
     <div class="admin-toolbar"><ElInput v-model="state.query" aria-label="课程标题搜索" placeholder="搜索课程标题" maxlength="200" clearable @keyup.enter="search" />

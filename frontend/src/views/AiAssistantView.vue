@@ -70,7 +70,7 @@ async function changePage(value: number) { page.value = value; await history() }
 <template>
   <section class="assistant">
     <h1>AI学习助手 <el-tag>P2增强</el-tag></h1>
-    <p>单轮知识答疑，不替代资源学习、Spark推荐或教师判断。回答可能有误，请核对原始材料。</p>
+    <p>提供单轮学习答疑。AI 回答仅供参考，请结合课程资料和教师指导核对。</p>
     <el-alert v-if="loading" title="正在检查AI功能" :closable="false" />
     <el-alert v-else-if="!capabilities?.enabled" title="AI助手当前关闭，其他学习功能正常使用" type="info" :closable="false" />
     <template v-else>
