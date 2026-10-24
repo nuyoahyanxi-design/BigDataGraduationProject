@@ -1,10 +1,11 @@
 export interface DailyMetric { day: string; resource_view: number; learning_start: number; learning_complete: number; favorite_add: number; favorite_remove: number }
 export interface DashboardMetrics {
+  chapter?: { chapter_views: number; video_plays: number; viewed_pairs: number; played_pairs: number; play_users: number; completed_pairs: number; daily: { day: string; chapter_view: number; video_play: number; chapter_complete: number }[]; rule: string } | null
   users: { total: number; active_learners: number; admins: number }
-  resources: { total: number; published: number }
+  resources: { total: number; published: number; scope_label?: string | null }
   resource_categories: { category: string; count: number }[]
   behavior: { total_effective_events: number; window_events: number; daily: DailyMetric[]; timezone: 'Asia/Shanghai'; window_days: 30 }
-  learning: { started_pairs: number; in_progress: number; completed: number; completion_rate: number | null }
+  learning: { scope_label?: string | null; started_pairs: number; in_progress: number; completed: number; completion_rate: number | null }
 }
 export interface DashboardResponse {
   available: boolean

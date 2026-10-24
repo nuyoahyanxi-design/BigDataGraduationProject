@@ -75,6 +75,7 @@ class ResourceStatus(InputModel):
 
 
 class ResourceSummary(BaseModel):
+    display_type: ResourceType | None = None
     model_config=ConfigDict(from_attributes=True)
     id: int
     title: str

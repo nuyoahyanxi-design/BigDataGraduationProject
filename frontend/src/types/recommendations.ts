@@ -1,6 +1,8 @@
 import type { ResourceSummary } from './resources'
 export type RecommendationAlgorithm = 'content_v1' | 'popular_v1'
 export interface ProfileSummary {
+  scope_label?: string | null
+  chapter_activity?: { chapter_views: number; video_plays: number; viewed_chapters: number; played_chapters: number; completed_chapters: number } | null
   batch_id: string; generated_at: string; as_of_utc: string
   interest_weights: Record<string, number>
   evidence: 'observed' | 'explicit_only' | 'no_evidence'

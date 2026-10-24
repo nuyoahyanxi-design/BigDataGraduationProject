@@ -5,7 +5,14 @@ from pydantic import ValidationError
 from app.models import Resource, User
 from app.services.users import utc_now
 from app.services.course_presentation import visible_resource_clause
-from app.schemas.resources import ResourceWrite
+from app.schemas.resources import ResourceWrite,ResourceSummary,ResourceDetail
+from app.models import CourseChapter
+
+def display_resource(db,resource,detail=False,chapter_ids=None):
+    has_chapters=resource.id in chapter_ids if chapter_ids is not None else bool(db.scalar(select(CourseChapter.id).where(CourseChapter.resource_id==resource.id).limit(1)))
+    schema=ResourceDetail if detail else ResourceSummary
+    return schema.model_validate(resource).model_copy(update={"display_type":"course" if has_chapters else resource.resource_type})
+
 
 
 def lock_admin(db,user):
@@ -92,7 +99,7 @@ def detail_resource(db,user,id):
     resource=db.scalar(query)
     if resource is None:
         raise HTTPException(404,'Resource not found')
-    return resource
+    return display_resource(db,resource,detail=True)
 
 
 def list_resources(db,user,page,page_size,q,category_code,resource_type,status):
@@ -111,4 +118,5 @@ def list_resources(db,user,page,page_size,q,category_code,resource_type,status):
         query=query.where(Resource.resource_type==resource_type)
     total=db.scalar(select(func.count()).select_from(query.subquery()))
     items=db.scalars(query.order_by(Resource.id.desc()).offset((page-1)*page_size).limit(page_size)).all()
-    return {'items':items,'total':total,'page':page,'page_size':page_size}
+    chapter_ids=set(db.scalars(select(CourseChapter.resource_id).where(CourseChapter.resource_id.in_([r.id for r in items])).distinct())) if items else set()
+    return {'items':[display_resource(db,r,chapter_ids=chapter_ids) for r in items],'total':total,'page':page,'page_size':page_size}

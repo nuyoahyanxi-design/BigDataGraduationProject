@@ -41,7 +41,7 @@ def batch_lock(target):
 def normalize_db_rows(rows):
     return [dict(row,score=format(row['score'],'.12f')) for row in rows]
 
-def publish_mysql(rows,batch):
+def publish_mysql(rows,batch,formal_scope=False):
     if any(row['batch_id']!=batch for row in rows):
         raise ValueError('Mixed recommendation batches')
     settings=MysqlSettings.from_environment()
@@ -63,7 +63,16 @@ def publish_mysql(rows,batch):
             for uid,rid in sorted({(row['user_id'],row['resource_id']) for row in rows}):
                 q.execute('SELECT status FROM learning_progress WHERE user_id=%s AND resource_id=%s FOR SHARE',(uid,rid))
                 state=q.fetchone()
-                if state and state['status']=='completed':
+                q.execute('SELECT COUNT(*),SUM(CASE WHEN p.completed_at IS NOT NULL THEN 1 ELSE 0 END) FROM course_chapters c LEFT JOIN chapter_progress p ON p.chapter_id=c.id AND p.user_id=%s WHERE c.resource_id=%s',(uid,rid))
+                total,done=q.fetchone().values()
+                is_complete=(int(done or 0)==total) if total else bool(state and state['status']=='completed')
+                if formal_scope:
+                    from backend.app.core.resource_scope import visible_metadata
+                    from types import SimpleNamespace
+                    q.execute('SELECT id,source_name,license_note FROM resources WHERE id=%s',(rid,))
+                    if not total or not visible_metadata(SimpleNamespace(**q.fetchone())):
+                        raise RuntimeError('Formal course scope changed before publication')
+                if is_complete:
                     raise RuntimeError('Stale completion state; generate a fresh source batch')
             sql='SELECT user_id,resource_id,batch_id,algorithm,score,`rank`,reason FROM recommendation_results WHERE batch_id=%s ORDER BY user_id,algorithm,`rank` FOR UPDATE'
             q.execute(sql,(batch,));old=normalize_db_rows(q.fetchall())
@@ -114,7 +123,7 @@ def run(spark,profile_batch,parameters=None):
     validate_parameters(parameters)
     verify_loaded_code()
     frames,pm,om=load_inputs(spark,profile_batch)
-    code_hash=hashlib.sha256(SOURCE_BYTES+JOB_SOURCE_BYTES).hexdigest()
+    code_hash=hashlib.sha256(SOURCE_BYTES+JOB_SOURCE_BYTES+(ROOT/'spark/utils/chapter_analytics.py').read_bytes()+(ROOT/'spark/utils/progress.py').read_bytes()+(ROOT/'spark/utils/resource_scope.py').read_bytes()+(ROOT/'backend/app/core/resource_scope.py').read_bytes()).hexdigest()
     digest=hashlib.sha256(canonical({'profile_batch':profile_batch,'profile_digest':pm['content_sha256'],'parameters':parameters,'code_sha256':code_hash}).encode()).hexdigest()[:20]
     batch=pm['source_batch_id']+'_r1_'+digest
     target=ROOT/'data/ads/recommendations'/('batch_id='+batch)
@@ -122,7 +131,16 @@ def run(spark,profile_batch,parameters=None):
         path=target/'manifest.json';previous=json_read(path) if path.exists() else {}
         if previous and previous.get('status') not in ['prepared','completed','failed']:
             raise RuntimeError('Unfinished artifact needs inspection; preserved without overwrite')
-        rows,counts=compute_recommendations(*frames,om['snapshot_at'],parameters)
+        from spark.utils.chapter_analytics import load_chapters,RULE
+        ce,_=load_chapters(spark,ROOT/'data/ods'/('batch_id='+pm['source_batch_id']),ROOT/'data/dwd'/('batch_id='+pm['source_batch_id']))
+        from spark.utils.progress import load_progress,RULE as PROGRESS_RULE
+        effective_progress=load_progress(spark,ROOT/'data/ods'/('batch_id='+pm['source_batch_id']),ROOT/'data/dwd'/('batch_id='+pm['source_batch_id']))
+        if effective_progress is not None: frames=(*frames[:-1],effective_progress)
+        from spark.utils.resource_scope import load_formal,restrict,SCOPE_RULE,SCOPE_LABEL
+        scoped=load_formal(spark,ROOT/'data/ods'/('batch_id='+pm['source_batch_id']))
+        if scoped is not None:
+            frames=(frames[0],frames[1],scoped,restrict(frames[3],scoped),restrict(frames[4],scoped));ce=restrict(ce,scoped)
+        rows,counts=compute_recommendations(*frames,om['snapshot_at'],parameters,chapter_events=ce,progress_is_canonical=effective_progress is not None)
         verify_loaded_code()
         rows=[dict(row,batch_id=batch) for row in rows]
         generated=previous.get('generated_at',datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='milliseconds'))
@@ -130,6 +148,18 @@ def run(spark,profile_batch,parameters=None):
         if previous and previous.get('content_sha256')!=checksum:
             raise RuntimeError('Repeated recommendation batch differs')
         metadata={'batch_id':batch,'source_batch_id':pm['source_batch_id'],'profile_batch_id':profile_batch,'as_of_utc':om['snapshot_at'],'generated_at':generated,'algorithms':{'popular_v1':{'version':'v1','score':'w_view*V + w_start*S + w_complete*C + w_favorite*F; weights in parameters'},'content_v1':{'version':'hybrid-v2','score':'0.6*tag_cosine + 0.25*personal_behavior/max_personal_behavior + 0.15*heat/max_heat; no-history uses normalized popularity'}},'parameters':parameters,'code_sha256':code_hash,'content_sha256':checksum,'counts':counts}
+        if ce is not None:
+            metadata['chapter_rule']=RULE
+            metadata['algorithms']['content_v1']['version']='hybrid-chapter-v1'
+            metadata['algorithms']['popular_v1']['version']='chapter-v1'
+            metadata['algorithms']['popular_v1']['score']+=' + capped daily chapter signals'
+        if effective_progress is not None:
+            metadata['progress_rule']=PROGRESS_RULE
+            metadata['algorithms']['content_v1']['version']='hybrid-progress-v1'
+            metadata['algorithms']['popular_v1']['version']='progress-v1'
+        if scoped is not None:
+            metadata.update(scope_rule=SCOPE_RULE,scope_label=SCOPE_LABEL)
+            metadata['algorithms']['content_v1']['version']='hybrid-formal-v1'
         output=target/'results'
         if output.exists():
             if not previous or 'files' not in previous:
@@ -147,7 +177,7 @@ def run(spark,profile_batch,parameters=None):
         if previous.get('status')!='completed':
             write_json(path,status)
         try:
-            publish_mysql(rows,batch)
+            publish_mysql(rows,batch,formal_scope=scoped is not None)
         except Exception as error:
             if previous.get('status')!='completed':
                 write_json(path,dict(status,status='failed',error_type=type(error).__name__))

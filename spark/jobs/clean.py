@@ -30,6 +30,27 @@ def clean(spark,batch):
                 if frame.count()!=readback.count() or frame.exceptAll(readback).limit(1).count() or readback.exceptAll(frame).limit(1).count():
                     raise RuntimeError('DWD Parquet round-trip content mismatch')
                 status[name]={'rows':frame.count(),'schema':frame.schema.jsonValue(),'files':parquet_files(target/name),'round_trip':'passed'}
+            if 'chapter_events' in manifest['tables']:
+                from spark.utils.chapter_analytics import clean_chapters
+                ce,cr,cq=clean_chapters(spark.read.parquet(str(source/'chapter_events')),users,resources,spark.read.parquet(str(source/'course_chapters')),manifest['snapshot_at'])
+                try:
+                    for name,frame in [('chapter_events',ce),('chapter_events_rejected',cr)]:
+                        frame.coalesce(1).write.mode('errorifexists').parquet(str(target/name))
+                        rb=spark.read.parquet(str(target/name))
+                        if frame.count()!=rb.count() or frame.exceptAll(rb).limit(1).count() or rb.exceptAll(frame).limit(1).count():
+                            raise RuntimeError('Chapter DWD round-trip mismatch')
+                        status[name]={'rows':frame.count(),'files':parquet_files(target/name),'round_trip':'passed'}
+                    status['chapter_quality']=cq
+                    from spark.utils.progress import derive_progress,RULE
+                    canonical=derive_progress(spark.read.parquet(str(source/'learning_progress')),spark.read.parquet(str(source/'course_chapters')),spark.read.parquet(str(source/'chapter_progress')),users,manifest['snapshot_at'])
+                    canonical.coalesce(1).write.mode('errorifexists').parquet(str(target/'effective_progress'))
+                    rb=spark.read.parquet(str(target/'effective_progress'))
+                    if canonical.count()!=rb.count() or canonical.exceptAll(rb).limit(1).count() or rb.exceptAll(canonical).limit(1).count():
+                        raise RuntimeError('Canonical progress round-trip mismatch')
+                    status['effective_progress']={'rows':rb.count(),'files':parquet_files(target/'effective_progress'),'round_trip':'passed'}
+                    status['progress_rule']=RULE
+                finally:
+                    ce.unpersist();cr.unpersist()
             status.update(status='completed',quality=report,snapshot_at=manifest['snapshot_at'])
             write_json(target/'manifest.json',status)
             return report

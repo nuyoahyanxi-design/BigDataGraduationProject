@@ -34,7 +34,21 @@ def run(spark):
     quality = json.loads((ROOT/'outputs/spark-data-pipeline'/source/'quality-report.json').read_text())
     if quality['batch_id'] != source or quality['conservation'] != 'passed':
         raise RuntimeError('Quality lineage mismatch')
-    daily, metrics = compute_metrics(spark, *[spark.read.parquet(str(ods/name)) for name in ['users','resources','learning_progress']], spark.read.parquet(str(dwd/'learning_events')),om['snapshot_at'])
+    from spark.utils.progress import load_progress,RULE as PROGRESS_RULE
+    effective_progress=load_progress(spark,ods,dwd)
+    progress=effective_progress if effective_progress is not None else spark.read.parquet(str(ods/'learning_progress'))
+    from spark.utils.resource_scope import load_formal,restrict,SCOPE_RULE,SCOPE_LABEL
+    scoped=load_formal(spark,ods)
+    resources=scoped if scoped is not None else spark.read.parquet(str(ods/'resources'))
+    events=spark.read.parquet(str(dwd/'learning_events'))
+    if scoped is not None: progress=restrict(progress,scoped);events=restrict(events,scoped)
+    daily, metrics = compute_metrics(spark,spark.read.parquet(str(ods/'users')),resources,progress,events,om['snapshot_at'])
+    if scoped is not None:
+        metrics['learning']['scope_label']=SCOPE_LABEL;metrics['resources']['scope_label']=SCOPE_LABEL
+    from spark.utils.chapter_analytics import load_chapters,dashboard_chapters
+    ce,_=load_chapters(spark,ods,dwd)
+    if scoped is not None: ce=restrict(ce,scoped)
+    if ce is not None: metrics['chapter']=dashboard_chapters(ce,spark.read.parquet(str(ods/'users')),om['snapshot_at'])
     code_hash = hashlib.sha256(PathBytes()).hexdigest()[:12]
     linked = None if recommendation is None else {k:recommendation[k] for k in ['batch_id','profile_batch_id','generated_at','as_of_utc']}
     identity = hashlib.sha256(canonical({'code':code_hash,'linked':linked}).encode()).hexdigest()[:12]
@@ -45,7 +59,7 @@ def run(spark):
         previous = json.loads(manifest_path.read_text()) if manifest_path.exists() else None
         generated = previous['generated_at'] if previous else datetime.now(timezone.utc).isoformat(timespec='milliseconds')
         record = {'batch_id':batch,'source_batch_id':source,'generated_at':generated,'as_of_utc':om['snapshot_at'],
-            'source':'Spark ODS/DWD daily_metrics Parquet + paired MySQL analytics results',
+            'source':'Spark ODS/DWD daily_metrics Parquet + paired MySQL analytics results'+('; '+PROGRESS_RULE if effective_progress is not None else '')+('; '+SCOPE_RULE if scoped is not None else ''),
             'dataset_origin':quality.get('dataset_origin','snapshot data; provenance not independently verified'),
             'spark_version':spark.version,'code_sha256':code_hash,'recommendation_publication':linked,
             'metrics':metrics,'quality':{k:quality[k] for k in ['input_count','filtered_count','output_count']}}
@@ -69,7 +83,7 @@ def run(spark):
 
 def PathBytes():
     from pathlib import Path
-    return Path(__file__).read_bytes() + (ROOT/'spark/utils/dashboard_metrics.py').read_bytes()
+    return Path(__file__).read_bytes() + (ROOT/'spark/utils/dashboard_metrics.py').read_bytes() + (ROOT/'spark/utils/chapter_analytics.py').read_bytes() + (ROOT/'spark/utils/progress.py').read_bytes() + (ROOT/'spark/utils/resource_scope.py').read_bytes() + (ROOT/'backend/app/core/resource_scope.py').read_bytes()
 
 
 if __name__=='__main__':

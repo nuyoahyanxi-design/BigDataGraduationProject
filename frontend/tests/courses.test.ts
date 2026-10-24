@@ -3,7 +3,7 @@ import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import { http } from '../src/api/http'
 import { getCourse, recordChapter } from '../src/api/courses'
-import { chapterPercent, safeVideoAsset, type Chapter } from '../src/types/courses'
+import { chapterStatus, chapterPercent, safeVideoAsset, type Chapter } from '../src/types/courses'
 import { learningBlocks } from '../src/services/markdown-learning'
 import { newPlayback, updatePlayback } from '../src/services/video-learning'
 import LearningVideo from '../src/components/LearningVideo.vue'
@@ -20,6 +20,11 @@ it('课程查询和章节事件使用当前用户接口与固定事件UUID',asyn
   expect(requests[1]?.url).toBe('/resources/1068/chapters/1/events')
   expect(JSON.parse(requests[1]!.data!)).toEqual({event_uuid:'same-uuid',event_type:'video_play',playback_seconds:12.5})
   expect(JSON.parse(requests[1]!.data!)).not.toHaveProperty('user_id')
+})
+it('已开始但0章完成应为学习中',()=>{
+  const chapters=[{completed:false,started:true},{completed:false,started:false}] as Chapter[]
+  expect(chapterStatus(chapters)).toBe('in_progress');expect(chapterPercent(chapters)).toBe(0)
+  expect(chapterStatus([{completed:false,started:false}] as Chapter[])).toBe('not_started')
 })
 it('完成率来自章节而非旧课程状态',()=>{
   expect(chapterPercent([])).toBe(0)

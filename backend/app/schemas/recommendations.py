@@ -12,6 +12,7 @@ def utc(value: datetime):
 
 
 class Publication(BaseModel):
+    scope_rule: str | None = None
     status: Literal['completed']
     mysql_publication: Literal['passed']
     batch_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
@@ -29,7 +30,17 @@ class EventCounts(BaseModel):
     favorite_remove: int = Field(ge=0)
 
 
+class ChapterActivity(BaseModel):
+    chapter_views: int = Field(ge=0)
+    video_plays: int = Field(ge=0)
+    viewed_chapters: int = Field(ge=0)
+    played_chapters: int = Field(ge=0)
+    completed_chapters: int = Field(ge=0)
+
+
 class ProfileSummary(BaseModel):
+    scope_label: str | None = None
+    chapter_activity: ChapterActivity | None = None
     batch_id: str
     generated_at: datetime
     as_of_utc: datetime

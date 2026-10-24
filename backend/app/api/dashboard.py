@@ -11,3 +11,12 @@ router = APIRouter(prefix='/api/dashboard',tags=['dashboard'])
 def dashboard(request: Request,user: User=Depends(require_admin),db: Session=Depends(get_db)):
     if request.query_params: raise HTTPException(422,'Unsupported query parameter')
     return overview(db)
+
+
+from app.schemas.public_education import PublicEducationResponse
+from app.services.public_education import published_education
+
+@router.get('/public-education',response_model=PublicEducationResponse)
+def public_education(request: Request,user: User=Depends(require_admin)):
+    if request.query_params:raise HTTPException(422,'Unsupported query parameter')
+    return published_education()

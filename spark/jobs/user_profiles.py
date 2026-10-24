@@ -54,7 +54,7 @@ def run(spark,source_batch):
     for table in ['users','resources']:
         validate_hashes(ods/table,om['tables'][table]['files'])
     validate_hashes(dwd/'learning_events',dm['learning_events']['files'])
-    digest=hashlib.sha256((ROOT/'spark/utils/profiles.py').read_bytes()+(ROOT/'spark/jobs/user_profiles.py').read_bytes()).hexdigest()[:12]
+    digest=hashlib.sha256((ROOT/'spark/utils/profiles.py').read_bytes()+(ROOT/'spark/jobs/user_profiles.py').read_bytes()+(ROOT/'spark/utils/chapter_analytics.py').read_bytes()+(ROOT/'spark/utils/progress.py').read_bytes()+(ROOT/'spark/utils/resource_scope.py').read_bytes()+(ROOT/'backend/app/core/resource_scope.py').read_bytes()).hexdigest()[:12]
     batch=source_batch+'_p1_'+digest
     target=ROOT/'data/ads/user_profiles'/('batch_id='+batch)
     target.mkdir(parents=True,exist_ok=True)
@@ -62,7 +62,20 @@ def run(spark,source_batch):
     previous=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     generated=previous.get('generated_at',datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec='milliseconds'))
     explanation={'rule_version':'v1','source_batch_id':source_batch,'as_of_utc':om['snapshot_at'],'interest':'daily distinct view=1,start=2,complete=3,current favorite=2; split tags; behavior 0.7 explicit 0.3 when both','activity':'distinct Asia/Shanghai dates of effective events','completion':'distinct completed started resources / distinct started resources; empty denominator=null','preference':'resource type score=distinct started + 2*completed'}
-    profiles=compute_profiles(spark,spark.read.parquet(str(dwd/'learning_events')),spark.read.parquet(str(ods/'users')),spark.read.parquet(str(ods/'resources')),om['snapshot_at'])
+    from spark.utils.chapter_analytics import load_chapters,RULE
+    ce,chapters=load_chapters(spark,ods,dwd)
+    if ce is not None: explanation.update(chapter_rule=RULE,rule_version='chapter-v1')
+    from spark.utils.progress import load_progress,RULE as PROGRESS_RULE
+    effective_progress=load_progress(spark,ods,dwd)
+    if effective_progress is not None: explanation.update(progress_rule=PROGRESS_RULE,completion='current effective completed resources / current effective started resources',interest=explanation['interest']+'; start/complete signals use effective progress')
+    from spark.utils.resource_scope import load_formal,restrict,SCOPE_RULE,SCOPE_LABEL
+    scoped=load_formal(spark,ods)
+    resources=scoped if scoped is not None else spark.read.parquet(str(ods/'resources'))
+    events=spark.read.parquet(str(dwd/'learning_events'))
+    if scoped is not None:
+        events=restrict(events,scoped);ce=restrict(ce,scoped);effective_progress=restrict(effective_progress,scoped)
+        explanation.update(scope_rule=SCOPE_RULE,scope_label=SCOPE_LABEL,completion='completed formal courses / started formal courses; empty denominator=null')
+    profiles=compute_profiles(spark,events,spark.read.parquet(str(ods/'users')),resources,om['snapshot_at'],ce,chapters,effective_progress)
     rows=[dict(user_id=p['user_id'],batch_id=batch,generated_at=generated,**{k:canonical(p[k]) for k in ['interest_profile','activity_profile','learning_preference']},metric_explanations=canonical(explanation)) for p in profiles]
     content_hash=hashlib.sha256(canonical(rows).encode()).hexdigest()
     if previous and previous.get('content_sha256')!=content_hash:

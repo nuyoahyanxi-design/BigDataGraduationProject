@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElAlert, ElButton, ElCard, ElEmpty, ElInput, ElOption, ElPagination, ElSelect, ElTag } from 'element-plus'
 import { listResources } from '@/api/resources'
+import ResourceCover from '@/components/ResourceCover.vue'
 import { resourceError } from '@/services/resource-learning'
 import { categories, typeNames, difficultyNames, type ResourceSummary } from '@/types/resources'
 const router = useRouter()
@@ -41,9 +42,10 @@ onMounted(load)
     <p v-if="loading" role="status">正在加载资源…</p>
     <ElEmpty v-else-if="!errorMessage && !items.length" description="没有符合条件的资源" />
     <div v-else-if="!errorMessage" class="resource-grid">
-      <ElCard v-for="item in items" :key="item.id" class="resource-card" shadow="never">
+      <ElCard v-for="item in items" :key="item.id" class="resource-card resource-card--illustrated" shadow="never">
+        <ResourceCover :resource-id="item.id" />
         <h2>{{ item.title }}</h2><p class="resource-summary">{{ item.summary }}</p>
-        <div class="resource-meta"><ElTag type="info">{{ typeNames[item.resource_type] }}</ElTag><ElTag type="warning">{{ difficultyNames[item.difficulty] }}</ElTag></div>
+        <div class="resource-meta"><ElTag type="info">{{ typeNames[item.display_type || item.resource_type] }}</ElTag><ElTag type="warning">{{ difficultyNames[item.difficulty] }}</ElTag></div>
         <div class="resource-tags"><ElTag v-for="tag in item.tags" :key="tag" size="small">{{ tag }}</ElTag></div>
         <ElButton @click="router.push({ name: 'resource-detail', params: { id: item.id } })">查看详情</ElButton>
       </ElCard>

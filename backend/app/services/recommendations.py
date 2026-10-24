@@ -4,12 +4,13 @@ from pathlib import Path
 from fastapi import HTTPException
 from pydantic import ValidationError
 from sqlalchemy import select
+from app.services.resources import display_resource
 from app.models import Resource, LearningProgress, UserProfile, RecommendationResult
 from app.schemas.resources import ResourceSummary
 from app.schemas.recommendations import Publication, ProfileSummary, RecommendationItem, RecommendationsResponse
 
 
-from app.services.course_presentation import visible_resource_clause, effective_progress_status
+from app.services.course_presentation import visible_resource_clause, effective_progress_status, formal_course_clause
 
 DEFAULT_MANIFEST = Path(__file__).resolve().parents[3] / 'outputs/recommendation-latest.json'
 
@@ -41,6 +42,8 @@ def summarize_profile(row, publication):
             interest_weights=row.interest_profile['weights'],
             evidence=row.interest_profile['evidence'],
             event_counts=row.activity_profile['event_counts'],
+            chapter_activity=row.activity_profile.get('chapter_activity'),
+            scope_label=row.metric_explanations.get('scope_label'),
             active_days=row.activity_profile['active_days'],
             started_resources=row.learning_preference['started_resources'],
             completed_resources=row.learning_preference['completed_resources'],
@@ -69,8 +72,9 @@ def recommendations_for_user(db, user, algorithm):
         RecommendationResult.algorithm == algorithm,
         Resource.status == 'published', visible_resource_clause(), Resource.id.not_in(completed)
     ).order_by(RecommendationResult.rank.asc(), RecommendationResult.resource_id.asc())
+    if publication.scope_rule: query=query.where(formal_course_clause())
     items = [RecommendationItem(resource_id=result.resource_id,
-        resource=ResourceSummary.model_validate(resource), algorithm=result.algorithm,
+        resource=display_resource(db,resource), algorithm=result.algorithm,
         score=format(result.score, 'f'), rank=result.rank, reason=result.reason)
         for result, resource in db.execute(query).all()]
     return RecommendationsResponse(batch_id=publication.batch_id, generated_at=publication.generated_at,

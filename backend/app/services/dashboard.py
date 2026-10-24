@@ -37,13 +37,14 @@ def overview(db):
     if artifact is None:
         return DashboardResponse(available=False,data=None,profiles=None,recommendations=None,
             message='尚无已发布的Spark看板统计，请先运行统计任务')
-    # Resource visibility is current online presentation; Spark artifacts remain immutable.
-    artifact.metrics.resources.total = db.scalar(select(func.count()).select_from(Resource).where(Resource.status!='deleted',visible_resource_clause()))
-    artifact.metrics.resources.published = db.scalar(select(func.count()).select_from(Resource).where(Resource.status=='published',visible_resource_clause()))
-    from app.schemas.dashboard import CategoryMetric
-    artifact.metrics.resource_categories = [CategoryMetric(category=category,count=count) for category,count in db.execute(
-        select(Resource.category_code,func.count()).where(Resource.status=='published',visible_resource_clause()).group_by(Resource.category_code).order_by(Resource.category_code))]
-    artifact.source += '; resources/categories: current MySQL, excludes demonstration resource 406 (not Spark snapshot)'
+    if artifact.metrics.learning.scope_label is None:
+        # Resource visibility is current online presentation; Spark artifacts remain immutable.
+        artifact.metrics.resources.total = db.scalar(select(func.count()).select_from(Resource).where(Resource.status!='deleted',visible_resource_clause()))
+        artifact.metrics.resources.published = db.scalar(select(func.count()).select_from(Resource).where(Resource.status=='published',visible_resource_clause()))
+        from app.schemas.dashboard import CategoryMetric
+        artifact.metrics.resource_categories = [CategoryMetric(category=category,count=count) for category,count in db.execute(
+            select(Resource.category_code,func.count()).where(Resource.status=='published',visible_resource_clause()).group_by(Resource.category_code).order_by(Resource.category_code))]
+        artifact.source += '; resources/categories: current MySQL, excludes demonstration resource 406 (not Spark snapshot)'
     paired = artifact.recommendation_publication
     profiles = ProfilesMetric(batch_id=None, users=0, evidence={})
     recommendations = RecommendationStats(batch_id=None,generated_at=None,rows=0,algorithms=[])

@@ -2,6 +2,7 @@ export type ProgressStatus = 'not_started' | 'in_progress' | 'completed'
 export type LearningAction = 'view' | 'start' | 'complete' | 'favorite' | 'unfavorite'
 export interface Page<T> { items: T[]; total: number; page: number; page_size: number }
 export interface ResourceSummary {
+  display_type?: 'document' | 'course' | 'exercise' | null
   id: number; title: string; summary: string; tags: string[]; difficulty: number
   resource_type: 'document' | 'course' | 'exercise'; category_code: string
   source_name: string | null; license_note: string | null

@@ -73,6 +73,11 @@ def _perform(db,user_id,resource_id,kind,payload,received_at,semantic):
     elif kind=='learning_complete':
         if progress is None:
             raise HTTPException(409,'Start learning before completing a resource')
+        from app.models.courses import CourseChapter,ChapterProgress
+        total=db.scalar(select(func.count()).select_from(CourseChapter).where(CourseChapter.resource_id==resource_id))
+        done=db.scalar(select(func.count()).select_from(ChapterProgress).join(CourseChapter).where(CourseChapter.resource_id==resource_id,ChapterProgress.user_id==user_id,ChapterProgress.completed_at.is_not(None))) if total else 0
+        if total and done!=total:
+            raise HTTPException(409,'Complete all course chapters first')
         before=progress.status;after='completed'
         if before=='completed':
             effective=0
@@ -151,8 +156,9 @@ def progress_page(db,user_id,page,page_size,resource_id,status):
     if status=='not_started' and resource_id is None:
         raise HTTPException(422,'resource_id required for not_started query')
     derived=effective_progress_status(user_id)
-    query=select(LearningProgress.resource_id,derived.label('status'),LearningProgress.first_started_at,
-                 LearningProgress.completed_at,LearningProgress.updated_at).where(LearningProgress.user_id==user_id)
+    from app.services.course_presentation import effective_progress_time
+    query=select(LearningProgress.resource_id,derived.label('status'),effective_progress_time(user_id,'first_started_at').label('first_started_at'),
+                 effective_progress_time(user_id,'completed_at').label('completed_at'),effective_progress_time(user_id,'updated_at').label('updated_at')).where(LearningProgress.user_id==user_id)
     if resource_id is not None:
         query=query.where(LearningProgress.resource_id==resource_id)
         if db.scalar(select(LearningProgress.resource_id).where(LearningProgress.user_id==user_id,LearningProgress.resource_id==resource_id)) is None:

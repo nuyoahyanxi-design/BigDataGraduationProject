@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { http } from '../src/api/http'
-import { getDashboard } from '../src/api/dashboard'
+import { getDashboard, getPublicEducationDashboard } from '../src/api/dashboard'
 import { dashboardCharts } from '../src/services/dashboard-charts'
 import { createAuthGuard } from '../src/router/auth-guard'
 import { memoryStorage, newSession } from './helpers'
@@ -39,4 +39,9 @@ it('未发布数据不会构造示例统计', () => {
   const charts=dashboardCharts({available:false,data:null,profiles:null,recommendations:null,message:'尚未生成'})
   expect((charts.trend.series as {data:number[]}[]).every(row=>row.data.length===0)).toBe(true)
   expect((charts.recommendation.series as {data:number[]}[])[0]?.data).toEqual([])
+})
+
+it('外部数据调用独立只读接口，不传入用户或执行任务参数',async()=>{
+ http.defaults.adapter=async config=>{expect(config.url).toBe('/dashboard/public-education');expect(config.params).toBeUndefined();expect(config.method).toBe('get');return {config,data:{available:false,data:null,message:'尚未发布'},status:200,statusText:'OK',headers:{}}}
+ expect((await getPublicEducationDashboard()).available).toBe(false)
 })

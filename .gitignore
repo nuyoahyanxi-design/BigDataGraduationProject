@@ -164,3 +164,12 @@ _pgpass
 test-results/
 playwright-report/
 blob-report/
+
+# Local account notes must never enter Git.
+/2026.10.1毕设账号密码.txt
+
+# Accepted chapter analytics and course-scope delivery reports.
+!/outputs/chapter-analytics-acceptance-report.md
+!/outputs/unified-progress-acceptance-report.md
+!/outputs/formal-course-scope-acceptance-report.md
+!/outputs/git-submit-organization-acceptance-report.md

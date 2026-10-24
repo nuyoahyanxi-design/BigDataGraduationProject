@@ -17,6 +17,7 @@ class UsersMetric(BaseModel):
     admins: int = Field(ge=0)
 
 class ResourcesMetric(BaseModel):
+    scope_label: str | None = None
     total: int = Field(ge=0)
     published: int = Field(ge=0)
 
@@ -32,12 +33,30 @@ class BehaviorMetric(BaseModel):
     window_days: Literal[30]
 
 class LearningMetric(BaseModel):
+    scope_label: str | None = None
     started_pairs: int = Field(ge=0)
     in_progress: int = Field(ge=0)
     completed: int = Field(ge=0)
     completion_rate: float | None = Field(ge=0, le=1)
 
+class ChapterDay(BaseModel):
+    day: str
+    chapter_view: int = Field(ge=0)
+    video_play: int = Field(ge=0)
+    chapter_complete: int = Field(ge=0)
+
+class ChapterMetric(BaseModel):
+    chapter_views: int = Field(ge=0)
+    video_plays: int = Field(ge=0)
+    viewed_pairs: int = Field(ge=0)
+    played_pairs: int = Field(ge=0)
+    play_users: int = Field(ge=0)
+    completed_pairs: int = Field(ge=0)
+    daily: list[ChapterDay]
+    rule: str
+
 class Metrics(BaseModel):
+    chapter: ChapterMetric | None = None
     users: UsersMetric
     resources: ResourcesMetric
     resource_categories: list[CategoryMetric]

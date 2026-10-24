@@ -16,6 +16,13 @@ def quality(spark,batch):
             'schema_timezone':'UTC','dataset_origin':'existing development acceptance fixtures; not real learner study'}
     for name in ['learning_events','learning_events_rejected']:
         validate_hashes(dwd/name,result[name]['files'])
+    if 'chapter_quality' in result:
+        report['chapter_quality']=result['chapter_quality']
+        for name in ['chapter_events','chapter_events_rejected']:
+            validate_hashes(dwd/name,result[name]['files'])
+    if 'progress_rule' in result:
+        validate_hashes(dwd/'effective_progress',result['effective_progress']['files'])
+        report['progress_rule']=result['progress_rule']
     events=spark.read.parquet(str(dwd/'learning_events'))
     events.createOrReplaceTempView('dwd_learning_events')
     report['sql_event_statistics']=[r.asDict() for r in spark.sql('SELECT event_type, COUNT(*) AS rows FROM dwd_learning_events GROUP BY event_type ORDER BY event_type').collect()]

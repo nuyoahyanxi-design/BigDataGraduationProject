@@ -34,8 +34,8 @@ async function retry() {
       ...(operation.playback_seconds === undefined ? {} : {playback_seconds:operation.playback_seconds})})
     if(seq!==generation || token!==auth.token)return
     const chapter=course.value?.chapters.find(ch=>ch.id===operation.chapter)
-    if(chapter)chapter.completed=result.chapter_completed
-    if(course.value)course.value.course_status=chapterStatus(course.value.chapters)
+    if(chapter){chapter.completed=result.chapter_completed;chapter.started=true}
+    if(course.value)course.value.course_status=result.course_status
     pending.value=undefined
     notice.value=course.value?.course_status==='completed'?'课程已完成，可继续复习章节内容。':'学习行为已记录'
   } catch(problem) { if(seq===generation && token===auth.token)error.value=resourceError(problem)+'；可重试原操作，不要重复提交新请求。' }
@@ -81,9 +81,9 @@ watch(()=>route.params.id,load,{immediate:true})
     <p v-if="loading" role="status">正在加载课程…</p><ElAlert v-if="error" :title="error" type="error" :closable="false" />
     <ElButton v-if="pending" :disabled="busy" @click="retry">重试原操作</ElButton>
     <ElButton v-else-if="error && !course" @click="load">重新加载</ElButton>
-    <template v-if="course"><header class="course-heading"><p class="course-eyebrow">课程学习</p><h1>{{course.title}}</h1><p class="course-status">课程状态：{{course.course_status==='completed'?'已完成':course.course_status==='in_progress'?'学习中':'未开始'}}<template v-if="course.chapters.length"> · 章节完成 {{percent}}%</template></p></header>
+    <template v-if="course"><header class="course-heading"><p class="course-eyebrow">课程学习</p><h1>{{course.title}}</h1><p class="course-status">课程状态：{{course.course_status==='completed'?'已完成':course.course_status==='in_progress'?'学习中':'未开始'}}<template v-if="course.chapters.length"> · 章节完成 {{percent}}%</template></p><progress v-if="course.chapters.length" class="course-progress" :value="percent" max="100" :aria-label="'章节完成 ' + percent + '%'"></progress></header>
       <ElAlert v-if="notice" :title="notice" type="success" :closable="false" />
-      <p class="course-note">视频播放结束后，请阅读章节内容并手动确认完成本章节；章节完成不验证学习能力或实际观看时长。</p>
+      <p class="course-note">观看视频并阅读内容后，请手动确认完成章节。进度反映学习操作，不代表实际观看时长或学习能力。</p>
       <div class="learning-workspace"><div class="learning-materials">
       <div v-if="course.chapters.length" class="course-layout">
         <aside class="course-sidebar"><ChapterNavigation :course-title="course.title" :chapters="course.chapters" :selected="selected?.id" :disabled="busy || !!pending" @select="selectChapter" /></aside>
@@ -103,21 +103,24 @@ watch(()=>route.params.id,load,{immediate:true})
   </section>
 </template>
 <style scoped>
-.course-page{max-width:1600px;margin:0 auto;min-width:0}
+.course-page{max-width:1600px;margin:0 auto;min-width:0;color:#3d3d3a}
 .learning-workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}.learning-materials,.course-ai-rail{min-width:0}
-.course-toolbar{margin-bottom:20px}.course-heading{margin-bottom:20px}
-.course-eyebrow{color:#246bd3;font-size:13px;margin:0 0 8px;letter-spacing:2px}
-.course-heading h1{font-size:28px;line-height:1.4;margin:0 0 12px;color:#172b4d;overflow-wrap:break-word}
-.course-status{color:#596b83;font-size:14px;margin:0}
-.course-note{color:#7b889a;font-size:13px;line-height:1.7;margin:16px 0 24px}
-.course-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
-.course-sidebar{box-sizing:border-box;width:260px;min-width:0;padding:22px 16px;background:#fff;border:1px solid #e4e8ee;border-radius:12px;position:sticky;top:24px;max-height:calc(100dvh - 48px);overflow-y:auto}
-.course-content{box-sizing:border-box;min-width:0;padding:28px}
-.chapter-heading{border-bottom:1px solid #edf0f5;padding-bottom:20px;margin-bottom:24px}
-.chapter-heading p{font-size:12px;color:#7b889a;margin:0 0 8px}.chapter-heading h2{font-size:24px;color:#172b4d;line-height:1.5;margin:0;overflow-wrap:break-word}
-.chapter-actions{border-top:1px solid #edf0f5;padding-top:24px;margin-top:32px;display:flex;justify-content:flex-end}
-.chapter-actions .el-button{min-height:42px;padding:12px 28px}
-@media(min-width:1400px){.learning-workspace{grid-template-columns:minmax(0,1fr) clamp(450px,32vw,520px)}.course-ai-rail{position:sticky;top:24px}.course-layout{grid-template-columns:220px minmax(0,1fr)}.course-sidebar{width:220px}.course-content{padding:22px}}
+.course-toolbar{margin-bottom:24px}.course-toolbar .el-button{background:transparent;border-color:#e6dfd8;color:#6c6a64}
+.course-heading{margin-bottom:22px}.course-eyebrow{color:#a9583e;font-size:12px;font-weight:600;margin:0 0 10px;letter-spacing:3px}
+.course-heading h1{font-size:30px;line-height:1.45;margin:0 0 14px;color:#141413;letter-spacing:-.025em;overflow-wrap:break-word}
+.course-status{color:#6c6a64;font-size:13px;margin:0}.course-progress{display:block;width:220px;max-width:100%;height:5px;margin-top:14px;border:0;border-radius:8px;overflow:hidden;appearance:none;background:#e6dfd8;accent-color:#a9583e}.course-progress::-webkit-progress-bar{background:#e6dfd8}.course-progress::-webkit-progress-value{background:#a9583e;border-radius:8px}.course-progress::-moz-progress-bar{background:#a9583e}
+.course-note{color:#77736b;font-size:12px;line-height:1.8;margin:16px 0 26px;padding-left:12px;border-left:2px solid #d8ac9c}
+.course-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;align-items:start}
+.course-sidebar{box-sizing:border-box;width:230px;min-width:0;padding:24px 14px;background:#f5f0e8;border:1px solid #e6dfd8;border-radius:12px;position:sticky;top:24px;max-height:calc(100dvh - 48px);overflow-y:auto}
+.course-content{box-sizing:border-box;min-width:0;padding:32px;border-color:#e6dfd8;border-radius:12px;background:#fff}
+.chapter-heading{border-bottom:1px solid #e6dfd8;padding-bottom:22px;margin-bottom:26px}.chapter-heading p{font-size:12px;color:#a9583e;margin:0 0 10px;letter-spacing:1px}.chapter-heading h2{font-size:23px;color:#141413;line-height:1.55;margin:0;overflow-wrap:break-word}
+.chapter-actions{border-top:1px solid #e6dfd8;padding-top:24px;margin-top:32px;display:flex;justify-content:flex-end}.chapter-actions .el-button{min-height:44px;padding:12px 28px;border-radius:8px}
+.course-page :deep(.chapter-navigation .catalog-label){color:#77736b}.course-page :deep(.catalog-title){color:#292720;font-size:17px}.course-page :deep(.chapter-navigation h3){color:#77736b}
+.course-page :deep(.chapter-navigation button){color:#56534c;border-radius:6px;font-size:13px;padding:11px 10px}.course-page :deep(.chapter-navigation button:hover:not(:disabled)){background:#efe9de;color:#88452f}.course-page :deep(.chapter-navigation button[aria-current]){border-color:#e5c5b8;background:#f5e5dc;color:#88452f;box-shadow:inset 3px 0 #a9583e}.course-page :deep(.chapter-navigation button:focus-visible){outline-color:#a9583e}
+.course-page :deep(.chapter-teaching){color:#3d3d3a}.course-page :deep(.chapter-teaching h3){color:#292720;font-size:17px}.course-page :deep(.chapter-teaching section){margin:32px 0}.course-page :deep(.chapter-teaching section[aria-label="教学目标"]),.course-page :deep(.chapter-teaching section[aria-label="章节练习"]){background:#faf9f5;border-color:#e6dfd8;border-radius:8px}.course-page :deep(.chapter-teaching pre),.course-page :deep(.learning-text pre){background:#181715;color:#efe9de;border-color:#36332d;border-radius:8px}.course-page :deep(.chapter-teaching .exercise-note){color:#77736b}
+.course-page :deep(.learning-video video){background:#181715;border-radius:8px}.course-page :deep(.learning-video h3){color:#292720}
+.course-page :deep(.course-ai){background:#fff;border:1px solid #e6dfd8;border-radius:12px;padding:20px}.course-page :deep(.assistant-heading){padding-bottom:16px;border-bottom:1px solid #e6dfd8}.course-page :deep(.assistant-heading h2){font-size:18px;color:#292720}.course-page :deep(.course-ai p){color:#77736b}.course-page :deep(.current-course){color:#3d3d3a!important}.course-page :deep(.user-question){background:#f5f0e8}.course-page :deep(.assistant-context),.course-page :deep(.assistant-composer),.course-page :deep(.ai-references),.course-page :deep(.assistant-history){border-color:#e6dfd8}.course-page :deep(.course-ai summary),.course-page :deep(.ai-exchange h3){color:#56534c}
+@media(min-width:1400px){.learning-workspace{grid-template-columns:minmax(0,1fr) clamp(450px,32vw,520px)}.course-ai-rail{position:sticky;top:24px}.course-layout{grid-template-columns:210px minmax(0,1fr)}.course-sidebar{width:210px}.course-content{padding:26px}}
 @media(max-width:900px){.course-layout{grid-template-columns:minmax(0,1fr)}.course-sidebar{width:100%;position:static;max-height:none}.course-content{padding:24px}}
-@media(max-width:600px){.course-heading h1{font-size:24px}.course-content{padding:18px}.chapter-heading h2{font-size:21px}.chapter-actions .el-button{width:100%}}
+@media(max-width:600px){.course-heading h1{font-size:25px}.course-content{padding:18px}.chapter-heading h2{font-size:21px}.chapter-actions .el-button{width:100%}}
 </style>

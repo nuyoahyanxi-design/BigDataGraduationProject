@@ -8,11 +8,12 @@ from app.models import User, Resource, LearningProgress, CourseChapter, ChapterP
 from app.services import learning
 from app.services.resources import lock_admin, bump
 from app.services.course_presentation import HIDDEN_LEARNER_RESOURCE_IDS, chapter_status
+from app.core.resource_scope import visible_metadata
 from app.core.video_catalog import playback_chapter, discovered_url
 
 def visible(db, resource_id, user):
     resource = db.get(Resource,resource_id)
-    if resource is None or ((resource.status!='published' or resource_id in HIDDEN_LEARNER_RESOURCE_IDS) and user.role!='admin'):
+    if resource is None or ((resource.status!='published' or not visible_metadata(resource)) and user.role!='admin'):
         raise HTTPException(404,'Resource not found')
     return resource
 
@@ -23,9 +24,9 @@ def read_course(db, resource_id, user):
           .where(CourseChapter.resource_id==resource_id,ChapterProgress.user_id==user.id))}
     progress=db.get(LearningProgress,(user.id,resource_id))
     return {'resource_id':resource_id,'title':resource.title,'content':resource.content,'status':resource.status,
-            'course_status':chapter_status(sum(bool(p.completed_at) for p in rows.values()),len(chapters)) if chapters else (progress.status if progress else 'not_started'),
+            'course_status':chapter_status(sum(bool(p.completed_at) for p in rows.values()),len(chapters),len(rows)) if chapters else (progress.status if progress else 'not_started'),
             'chapters':[{**playback_chapter(ch, discover=user.role!='admin'),
-                         'completed':bool(rows.get(ch.id) and rows[ch.id].completed_at)} for ch in chapters]}
+                         'started':ch.id in rows, 'completed':bool(rows.get(ch.id) and rows[ch.id].completed_at)} for ch in chapters]}
 
 def create_chapter(db, resource_id, user, payload):
     try:
@@ -103,7 +104,7 @@ def act(db, user_id, resource_id, chapter_id, payload, received_at):
                 progress=bridge(db,user_id,resource,progress,'learning_complete',stamp,received_at,uuid)
             result={'event_uuid':uuid,'resource_id':resource_id,'chapter_id':chapter_id,'event_type':payload.event_type,
                     'is_effective':effective,'chapter_completed':cp.completed_at is not None,
-                    'completed_chapters':completed,'total_chapters':total,'course_status':chapter_status(completed,total)}
+                    'completed_chapters':completed,'total_chapters':total,'course_status':chapter_status(completed,total,1)}
             append_chapter_event(db,event_uuid=uuid,user_id=user_id,resource_id=resource_id,chapter_id=chapter_id,
                 event_type=payload.event_type,occurred_at=stamp,playback_seconds=seconds,is_effective=effective,
                 request_fingerprint=semantic,result=result)

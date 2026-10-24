@@ -2,7 +2,7 @@ export interface Chapter {
   id: number; resource_id: number; title: string; position: number; content: string; knowledge_tags: string[]
   learning_objectives?: string[] | null; example_code?: string | null; exercises?: string[] | null
   video_name: string | null; video_url: string | null; video_cover: string | null
-  video_duration_seconds: number | null; video_position: number; completed: boolean
+  video_duration_seconds: number | null; video_position: number; started?: boolean; completed: boolean
 }
 export interface Course {
   resource_id: number; title: string; content: string | null; status: string
@@ -28,7 +28,7 @@ export function chapterPercent(chapters: Chapter[]): number {
 
 export function chapterStatus(chapters: Chapter[]): Course['course_status'] {
   const completed = chapters.filter(ch => ch.completed).length
-  return chapters.length && completed === chapters.length ? 'completed' : completed ? 'in_progress' : 'not_started'
+  return chapters.length && completed === chapters.length ? 'completed' : chapters.some(ch=>ch.started || ch.completed) ? 'in_progress' : 'not_started'
 }
 export function courseButton(status: Course['course_status']): string {
   return status === 'completed' ? '重新学习' : status === 'in_progress' ? '继续学习' : '开始课程'

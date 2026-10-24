@@ -15,10 +15,8 @@ def canonical_tag(column):
 
 
 def eligible_resources(resources):
-    if {'source_name','license_note'} <= set(resources.columns):
-        validation_only=F.coalesce((F.col('source_name')=='本项目测试') & (F.col('license_note')=='仅供开发验收'),F.lit(False))
-        return resources.filter(~validation_only)
-    return resources
+    from spark.utils.resource_scope import eligible
+    return eligible(resources)
 
 def validate_parameters(parameters):
     expected={'version','top_n','weights','business_timezone','max_candidate_pairs','max_output_rows'}
@@ -32,7 +30,7 @@ def validate_parameters(parameters):
     if set(weights)!={'view','start','complete','favorite'} or any(type(v) is not int or not 1<=v<=100 for v in weights.values()):
         raise ValueError('Invalid popularity weights')
 
-def compute_recommendations(profiles,users,resources,events,progress,cutoff,parameters):
+def compute_recommendations(profiles,users,resources,events,progress,cutoff,parameters,chapter_events=None,progress_is_canonical=False):
     validate_parameters(parameters)
     people=users.filter((F.col('role')=='learner') & (F.col('status')=='active')).select(F.col('id').alias('user_id')).distinct()
     p=profiles.select('user_id',F.from_json('interest_profile','struct<weights:map<string,double>,evidence:string>').alias('ip')).select('user_id','ip.*')
@@ -75,11 +73,29 @@ def compute_recommendations(profiles,users,resources,events,progress,cutoff,para
     personal_views=e.filter(F.col('event_type')=='resource_view').select('user_id','resource_id','day').distinct().select('user_id','resource_id',F.lit(w['view']).alias('value'))
     personal_other=e.filter(F.col('event_type').isin('learning_start','learning_complete')).select('user_id','resource_id','event_type').distinct().select('user_id','resource_id',F.when(F.col('event_type')=='learning_start',w['start']).otherwise(w['complete']).alias('value'))
     personal_favorites=e.filter(F.col('event_type').isin('favorite_add','favorite_remove')).withColumn('_latest',F.row_number().over(latest)).filter((F.col('_latest')==1)&(F.col('event_type')=='favorite_add')).select('user_id','resource_id',F.lit(w['favorite']).alias('value'))
+    if progress_is_canonical:
+        current=progress.join(people,'user_id')
+        s=current.filter(F.col('status').isin('in_progress','completed')).select('user_id','resource_id').distinct().groupBy('resource_id').count().withColumnRenamed('count','starts')
+        c=current.filter("status='completed'").select('user_id','resource_id').distinct().groupBy('resource_id').count().withColumnRenamed('count','completes')
+        personal_other=current.filter(F.col('status').isin('in_progress','completed')).select('user_id','resource_id',F.lit(w['start']).alias('value')).unionByName(current.filter("status='completed'").select('user_id','resource_id',F.lit(w['complete']).alias('value')))
+    chapter_heat=None
+    if chapter_events is not None:
+        from spark.utils.chapter_analytics import learner_events,signals
+        ce=learner_events(chapter_events,users,cutoff)
+        chapter_heat=signals(ce).groupBy('user_id','resource_id').agg(F.sum('weight').alias('value'))
+        personal_views=personal_views.unionByName(chapter_heat)
     personal=personal_views.unionByName(personal_other).unionByName(personal_favorites).groupBy('user_id','resource_id').agg(F.sum('value').alias('personal_heat'))
     personal=personal.withColumn('behavior_score',F.col('personal_heat')/F.max('personal_heat').over(Window.partitionBy('user_id'))).select('user_id','resource_id','behavior_score')
     history=e.select('user_id').distinct().withColumn('has_history',F.lit(True))
+    if progress_is_canonical:
+        history=history.select('user_id').unionByName(current.filter(F.col('status').isin('in_progress','completed')).select('user_id')).distinct().withColumn('has_history',F.lit(True))
     heat=r.join(v,'resource_id','left').join(s,'resource_id','left').join(c,'resource_id','left').join(f,'resource_id','left').fillna({k:0 for k in ['views','starts','completes','favorites']}).withColumn('heat',F.col('views')*w['view']+F.col('starts')*w['start']+F.col('completes')*w['complete']+F.col('favorites')*w['favorite'])
+    if chapter_heat is not None:
+        history=history.select('user_id').unionByName(ce.select('user_id')).distinct().withColumn('has_history',F.lit(True))
+        heat=heat.join(chapter_heat.groupBy('resource_id').agg(F.sum('value').alias('chapter_heat')),'resource_id','left').fillna({'chapter_heat':0.0}).withColumn('heat',F.col('heat')+F.col('chapter_heat'))
     completed=progress.filter(F.col('status')=='completed').select('user_id','resource_id').unionByName(e.filter(F.col('event_type')=='learning_complete').select('user_id','resource_id')).distinct()
+    if progress_is_canonical:
+        completed=progress.filter("status='completed'").select('user_id','resource_id').distinct()
     max_heat=heat.agg(F.max('heat').alias('maximum'))
     heat=heat.crossJoin(max_heat).withColumn('popularity_score',F.when(F.col('maximum')>0,F.col('heat')/F.col('maximum')).otherwise(0.0)).drop('maximum')
     candidates=(p.crossJoin(heat).join(completed,['user_id','resource_id'],'left_anti').join(personal,['user_id','resource_id'],'left').join(history,'user_id','left').fillna({'behavior_score':0.0,'has_history':False})
