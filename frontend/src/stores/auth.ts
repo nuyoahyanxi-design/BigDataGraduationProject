@@ -6,7 +6,7 @@ export const SESSION_KEY = 'spark-learning.auth.v1'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: '', user: null as User | null, expiresAt: 0, restored: false,
-    notice: '', storageWarning: '',
+    notice: '', storageWarning: '', remember: false,
   }),
   getters: {
     role: (state) => state.user?.role ?? null,
@@ -17,6 +17,8 @@ export const useAuthStore = defineStore('auth', {
       this.token = ''; this.user = null; this.expiresAt = 0
       this.restored = true; this.notice = message; this.storageWarning = ''
       try { sessionStorage.removeItem(SESSION_KEY) } catch { /* memory session still cleared */ }
+      try { localStorage.removeItem(SESSION_KEY) } catch { /* optional persistent session */ }
+      this.remember = false
     },
     expire() {
       if (this.token && this.expiresAt <= Date.now()) {
@@ -30,7 +32,13 @@ export const useAuthStore = defineStore('auth', {
     },
     persist() {
       try {
-        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: this.token, expiresAt: this.expiresAt }))
+        if (this.remember) {
+          localStorage.setItem(SESSION_KEY, JSON.stringify({ token: this.token, expiresAt: this.expiresAt }))
+          sessionStorage.removeItem(SESSION_KEY)
+        } else {
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: this.token, expiresAt: this.expiresAt }))
+          try { localStorage.removeItem(SESSION_KEY) } catch { /* optional persistent session */ }
+        }
         this.storageWarning = ''
       } catch { this.storageWarning = '浏览器无法保存会话，刷新后需要重新登录' }
     },
@@ -38,7 +46,10 @@ export const useAuthStore = defineStore('auth', {
       if (this.restored && this.user) { this.expire(); return }
       if (!this.token) {
         try {
-          const raw = sessionStorage.getItem(SESSION_KEY)
+          let raw = sessionStorage.getItem(SESSION_KEY)
+          if (!raw) {
+            try { raw = localStorage.getItem(SESSION_KEY); this.remember = Boolean(raw) } catch { /* session storage still works */ }
+          }
           if (raw) {
             const value: unknown = JSON.parse(raw)
             if (value && typeof value === 'object' && 'token' in value && 'expiresAt' in value
@@ -68,6 +79,7 @@ export const useAuthStore = defineStore('auth', {
     async signIn(credentials: Credentials) {
       this.clear()
       const result = await login(credentials)
+      this.remember = Boolean(credentials.remember_me)
       this.token = result.access_token
       this.expiresAt = Date.now() + result.expires_in * 1000
       try {

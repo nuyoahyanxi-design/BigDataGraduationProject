@@ -29,6 +29,15 @@ class Credentials(InputModel):
         return value
 
 
+class ChallengeInput(InputModel):
+    captcha_id: str | None = Field(default=None, max_length=100)
+    captcha_answer: SecretStr | None = Field(default=None, max_length=20)
+
+
+class LoginCredentials(Credentials, ChallengeInput):
+    remember_me: bool = Field(default=False, strict=True)
+
+
 class Interests(InputModel):
     interest_tags: list[Tag] = Field(max_length=10, strict=True)
 
@@ -40,7 +49,7 @@ class Interests(InputModel):
         return values
 
 
-class Register(Credentials, Interests):
+class Register(Credentials, Interests, ChallengeInput):
     nickname: str | None = Field(default=None, max_length=50)
     interest_tags: list[Tag] = Field(default_factory=list, max_length=10, strict=True)
 
@@ -61,3 +70,20 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: Literal['bearer'] = 'bearer'
     expires_in: int
+
+
+class RegistrationResponse(UserPublic):
+    recovery_code: str
+
+
+class PasswordReset(Credentials, ChallengeInput):
+    recovery_code: SecretStr = Field(min_length=20, max_length=100)
+
+
+class RecoveryEnrollment(InputModel):
+    password: SecretStr = Field(min_length=8, max_length=128)
+
+
+class RecoveryResponse(BaseModel):
+    recovery_code: str
+    message: str

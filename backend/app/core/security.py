@@ -35,13 +35,14 @@ class AuthSettings:
     lifetime_seconds: int = 1800
     issuer: str = 'spark-learning-backend'
     audience: str = 'spark-learning-users'
+    captcha_required: bool = True
 
     @classmethod
     def from_environment(cls):
         secret = os.environ.get('JWT_SECRET', '')
         if len(secret.encode()) < 32:
             raise RuntimeError('JWT_SECRET requires at least 32 bytes')
-        return cls(secret)
+        return cls(secret, captcha_required=os.environ.get('AUTH_CAPTCHA_REQUIRED', 'true').lower()!='false')
 
 
 def issue_token(user, settings: AuthSettings) -> str:
@@ -49,7 +50,7 @@ def issue_token(user, settings: AuthSettings) -> str:
     return jwt.encode({'sub':str(user.id), 'role':user.role, 'iat':stamp, 'nbf':stamp,
                        'exp':stamp+timedelta(seconds=settings.lifetime_seconds),
                        'iss':settings.issuer, 'aud':settings.audience,
-                       'jti':str(uuid4()), 'type':'access'}, settings.secret, algorithm='HS256')
+                       'jti':str(uuid4()), 'type':'access', 'pwd':password_fingerprint(user,settings)}, settings.secret, algorithm='HS256')
 
 
 def decode_token(token: str, settings: AuthSettings) -> int:
@@ -63,3 +64,13 @@ def decode_token(token: str, settings: AuthSettings) -> int:
     if not 0 < user_id <= 18446744073709551615 or claims['type']!='access' or claims['role'] not in ('learner','admin'):
         raise jwt.InvalidTokenError('Invalid identity')
     return user_id
+
+
+def password_fingerprint(user, settings):
+    return hmac.new(settings.secret.encode(),str(user.password_hash).encode(),hashlib.sha256).hexdigest()
+
+
+def token_matches_password(token, user, settings):
+    claims=jwt.decode(token,settings.secret,algorithms=['HS256'],issuer=settings.issuer,audience=settings.audience)
+    value=claims.get('pwd')
+    return isinstance(value,str) and hmac.compare_digest(value,password_fingerprint(user,settings))

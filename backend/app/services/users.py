@@ -12,7 +12,7 @@ def utc_now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
-def register_user(db, payload):
+def register_user(db, payload, *, recovery_hash=None):
     if db.scalar(select(User.id).where(User.username==payload.username)) is not None:
         raise HTTPException(409, 'Username already registered')
     stamp=utc_now()
@@ -21,6 +21,10 @@ def register_user(db, payload):
               interest_tags=payload.interest_tags, created_at=stamp, updated_at=stamp)
     db.add(user)
     try:
+        if recovery_hash is not None:
+            from app.models import AuthRecoveryCode
+            db.flush()
+            db.add(AuthRecoveryCode(user_id=user.id,code_hash=recovery_hash))
         db.commit()
     except IntegrityError as exc:
         db.rollback()

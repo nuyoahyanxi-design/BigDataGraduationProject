@@ -29,6 +29,9 @@ http.interceptors.response.use(
       if (status === 401 && token) authTransport?.onUnauthorized(token)
       const message = status === 401
         ? error.config?.skipAuth ? '用户名或密码错误' : '登录已失效，请重新登录'
+        : status === 400 && error.config?.url?.includes('/auth/') ? (error.config.url.includes('reset-password') ? '验证码或恢复信息无效，请检查后重试' : '验证码错误或已过期，请刷新后重试')
+        : status === 409 && error.config?.url?.includes('/auth/register') ? '该用户名已被使用，请更换用户名'
+        : status === 429 ? '操作过于频繁，请稍后再试'
         : status === 422 ? '输入格式不符合要求'
         : status === 403 ? '没有访问权限'
         : status ? `服务请求失败（HTTP ${status}），请稍后重试`

@@ -16,11 +16,11 @@ from app.core.config import Settings
 from app.database.base import Base
 from app.models import User, Resource, LearningProgress, Favorite, LearningEvent
 
-EXPECTED_PATHS={'/api/auth/register','/api/auth/login','/api/users/me','/api/users/interests',
+EXPECTED_PATHS={'/api/auth/captcha','/api/auth/recovery-code','/api/auth/reset-password','/api/auth/register','/api/auth/login','/api/users/me','/api/users/interests',
                 '/api/resources','/api/resources/{id}','/api/resources/{id}/status',
                 '/api/resources/{id}/view','/api/resources/{id}/start','/api/resources/{id}/complete',
                 '/api/resources/{id}/favorite','/api/users/me/progress','/api/users/me/favorites','/api/users/me/events',
-                '/api/recommendations/me','/api/dashboard/overview','/api/admin/users','/api/admin/batches','/api/admin/courses',
+                '/api/recommendations/me','/api/dashboard/public-education','/api/dashboard/overview','/api/admin/users','/api/admin/batches','/api/admin/courses',
                 '/api/ai/capabilities','/api/ai/questions','/api/ai/questions/{request_uuid}','/api/ai/history',
                 '/api/resources/{course_id}/ai/questions','/api/resources/{course_id}/ai/questions/{request_uuid}',
                 '/api/resources/{course_id}/ai/history',
